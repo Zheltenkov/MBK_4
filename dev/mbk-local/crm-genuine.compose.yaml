@@ -1,0 +1,39 @@
+name: mbk-crm-genuine-v1
+
+# A separate unmodified Laravel process; old protocol CRM is never recreated.
+services:
+  crm-genuine:
+    image: mbk-local/php:8.4
+    pull_policy: never
+    command: [sh, /local/start-app.sh]
+    working_dir: /app
+    env_file: ../../logs/local-stack-2026-11-06/runtime/crm-genuine.env
+    volumes:
+      - ../../logs/local-stack-2026-11-06/sources/project-2/lara:/app:ro
+      - crm-vendor:/app/vendor:ro
+      - ./start-app.sh:/local/start-app.sh:ro
+      - ./router.php:/local/router.php:ro
+      - ./runtime-probe.php:/local/runtime-probe.php:ro
+      - ./crm-genuine-stage.php:/local/crm-genuine-stage.php:ro
+      - ./crm-genuine-auth.php:/local/crm-genuine-auth.php:ro
+      - ./php-local.ini:/usr/local/etc/php/conf.d/zz-mbk-local.ini:ro
+    tmpfs:
+      - /tmp:uid=1000,gid=1000
+      - /app/storage:uid=1000,gid=1000
+      - /app/bootstrap/cache:uid=1000,gid=1000
+    networks: [lab]
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+
+networks:
+  lab:
+    external: true
+    name: mbk-local-lab_isolated
+
+volumes:
+  crm-vendor:
+    external: true
+    name: mbk-local-lab-vendor-2-20261106

@@ -1,0 +1,21 @@
+{
+  "status": "passed",
+  "scope": "partner",
+  "genuine_website_id": 1,
+  "job_id": 1,
+  "queue": "local_native_buyer_20261106_v1",
+  "framework_command_exit": 0,
+  "native_worker_events": {
+    "processing": 1,
+    "processed": 1,
+    "failed": 0
+  },
+  "jobs_remaining": 0,
+  "failed_jobs": 0,
+  "command_source_sha256": "923e38e56d43a0c6f79400fa7a297ba3917c331214cc79b93b799d4cbcedfe23",
+  "worker_source_sha256": "df1c358737fdd52c66ce7f1afa8e93a96c2be8ad712edf6ce60d030640ea1bdc",
+  "console_output_sha256": "a31a28c666bf125b3912f75d12286643814c2ef2a61988bb912a5922e7f53643",
+  "console_output_bytes": 158,
+  "full_artisan_command_discovery_skipped": true,
+  "business_source_modified": false
+}

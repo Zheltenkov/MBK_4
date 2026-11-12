@@ -1,0 +1,183 @@
+{
+  "source_sha256": "1125332ac47de7fca69685ed8259421227cd9fd347827c3309b7136d4c24ee5f",
+  "scope": "Historical V31 development experiment, not a deployed prompt or accuracy benchmark.",
+  "leading_audit": " — самостоятельная задача перед извлечением контактных слотов. Сначала сопоставь каждую утверждаемую клаузу draft с относящимися к ней сведениями context.verified_context: действие, объект, границы категории, условие, возможность или обязательность и область отрицания. Из факта об ограниченной категории не следует утверждение обо всей категории. Утрата существенного ограничения или обещание вместо возможности требуют style unsupported_claim, даже если все claims-слоты null. Само отсутствие факта в справке не доказывает его ложность. Перефразирование с тем же смыслом допустимо. Отличай цитату, отрицание чужого вывода и условную возможность от собственного безусловного утверждения. Отрицание одной клаузы не оправдывает отдельное положительное обещание. Затем независимо заполни user и claims; выводи только прежний JSON без рассуждений и дополнительных полей.\n",
+  "examples": [
+    {
+      "input": {
+        "latest_user_message": "Какие условия у этой гарантии?",
+        "draft": "Гарантия распространяется на производственные дефекты сенсора.",
+        "context": {
+          "mode": "onloader",
+          "offer_present": false,
+          "offer_status": null,
+          "verified_context": {
+            "synthetic_warranty_terms": "В этом вымышленном договоре гарантия распространяется только на производственные дефекты сенсора. При подтверждённом производственном дефекте сенсора возможна бесплатная замена. Одобрение обращения и замена конкретного устройства не подтверждены."
+          }
+        }
+      },
+      "result": {
+        "user": {
+          "acts": [],
+          "information_need": null
+        },
+        "claims": {
+          "predicates": {
+            "phone_required_to_save_chat": null,
+            "phone_required_to_chat": null,
+            "consultation_purpose": null,
+            "engineering_transfer_purpose": null,
+            "recipient_callback": null,
+            "recipient_no_other_contact_source": null,
+            "exclusive_recipient": null,
+            "transfer_completed": null,
+            "consent_recorded": null,
+            "refusal_recorded": null,
+            "conversation_refusal_acknowledged": null
+          },
+          "requests": {
+            "phone_request": null,
+            "transfer_consent_request": null
+          }
+        },
+        "style": {
+          "accept": true,
+          "flags": []
+        }
+      }
+    },
+    {
+      "input": {
+        "latest_user_message": "Какие условия у этой гарантии?",
+        "draft": "Гарантия распространяется на любые дефекты устройства.",
+        "context": {
+          "mode": "onloader",
+          "offer_present": false,
+          "offer_status": null,
+          "verified_context": {
+            "synthetic_warranty_terms": "В этом вымышленном договоре гарантия распространяется только на производственные дефекты сенсора. При подтверждённом производственном дефекте сенсора возможна бесплатная замена. Одобрение обращения и замена конкретного устройства не подтверждены."
+          }
+        }
+      },
+      "result": {
+        "user": {
+          "acts": [],
+          "information_need": null
+        },
+        "claims": {
+          "predicates": {
+            "phone_required_to_save_chat": null,
+            "phone_required_to_chat": null,
+            "consultation_purpose": null,
+            "engineering_transfer_purpose": null,
+            "recipient_callback": null,
+            "recipient_no_other_contact_source": null,
+            "exclusive_recipient": null,
+            "transfer_completed": null,
+            "consent_recorded": null,
+            "refusal_recorded": null,
+            "conversation_refusal_acknowledged": null
+          },
+          "requests": {
+            "phone_request": null,
+            "transfer_consent_request": null
+          }
+        },
+        "style": {
+          "accept": false,
+          "flags": [
+            "unsupported_claim"
+          ]
+        }
+      }
+    },
+    {
+      "input": {
+        "latest_user_message": "Возможна ли замена?",
+        "draft": "При подтверждённом производственном дефекте сенсора возможна бесплатная замена.",
+        "context": {
+          "mode": "onloader",
+          "offer_present": false,
+          "offer_status": null,
+          "verified_context": {
+            "synthetic_warranty_terms": "В этом вымышленном договоре гарантия распространяется только на производственные дефекты сенсора. При подтверждённом производственном дефекте сенсора возможна бесплатная замена. Одобрение обращения и замена конкретного устройства не подтверждены."
+          }
+        }
+      },
+      "result": {
+        "user": {
+          "acts": [],
+          "information_need": null
+        },
+        "claims": {
+          "predicates": {
+            "phone_required_to_save_chat": null,
+            "phone_required_to_chat": null,
+            "consultation_purpose": null,
+            "engineering_transfer_purpose": null,
+            "recipient_callback": null,
+            "recipient_no_other_contact_source": null,
+            "exclusive_recipient": null,
+            "transfer_completed": null,
+            "consent_recorded": null,
+            "refusal_recorded": null,
+            "conversation_refusal_acknowledged": null
+          },
+          "requests": {
+            "phone_request": null,
+            "transfer_consent_request": null
+          }
+        },
+        "style": {
+          "accept": true,
+          "flags": []
+        }
+      }
+    },
+    {
+      "input": {
+        "latest_user_message": "Возможна ли замена?",
+        "draft": "Не всякое обращение одобряют. Вам обязательно бесплатно заменят устройство.",
+        "context": {
+          "mode": "onloader",
+          "offer_present": false,
+          "offer_status": null,
+          "verified_context": {
+            "synthetic_warranty_terms": "В этом вымышленном договоре гарантия распространяется только на производственные дефекты сенсора. При подтверждённом производственном дефекте сенсора возможна бесплатная замена. Одобрение обращения и замена конкретного устройства не подтверждены."
+          }
+        }
+      },
+      "result": {
+        "user": {
+          "acts": [],
+          "information_need": null
+        },
+        "claims": {
+          "predicates": {
+            "phone_required_to_save_chat": null,
+            "phone_required_to_chat": null,
+            "consultation_purpose": null,
+            "engineering_transfer_purpose": null,
+            "recipient_callback": null,
+            "recipient_no_other_contact_source": null,
+            "exclusive_recipient": null,
+            "transfer_completed": null,
+            "consent_recorded": null,
+            "refusal_recorded": null,
+            "conversation_refusal_acknowledged": null
+          },
+          "requests": {
+            "phone_request": null,
+            "transfer_consent_request": null
+          }
+        },
+        "style": {
+          "accept": false,
+          "flags": [
+            "unsupported_claim"
+          ]
+        }
+      }
+    }
+  ]
+}

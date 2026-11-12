@@ -1,0 +1,15 @@
+python-dotenv==1.2.2
+pydantic==2.9.2
+pytest==8.4.2
+# Матрица маршрутов лежит в YAML — это единственный источник правды по квалификации.
+PyYAML==6.0.2
+# Backend (production): FastAPI + uvicorn + SSE streaming
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+sse-starlette==2.1.3
+# Observability — необязательно. Если не нужен трейсинг, можно убрать.
+# При отсутствии LANGFUSE_*-ключей модуль observability работает как no-op.
+langfuse>=3.0.0,<4.0.0
+# Аналитические события в Postgres. Тоже необязательно: без MBK_ANALYTICS_DSN
+# пакет не импортируется, recorder остаётся выключенным.
+psycopg[binary]==3.2.3

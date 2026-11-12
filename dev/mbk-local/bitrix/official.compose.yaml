@@ -1,0 +1,38 @@
+# Fresh official trial only. Old Git-pinned and protocol runtimes are untouched.
+services:
+  bitrix-official:
+    image: mbk-local/bitrix:8.4
+    pull_policy: never
+    profiles: [official]
+    command: [sh, /lab/official-start.sh]
+    working_dir: /srv/native
+    env_file: ../../logs/local-stack-2026-11-06/official-trial/runtime-v1/native.env
+    volumes:
+      - official-webroot:/srv/native:ro
+      - ./bitrix/official-start.sh:/lab/official-start.sh:ro
+      - ./bitrix/official-router.php:/lab/official-router.php:ro
+      - ./bitrix/official_http.php:/lab/official_http.php:ro
+      - ./bitrix/native-bootstrap.php:/lab/native-bootstrap.php:ro
+      - ./bitrix/native-metadata.php:/lab/native-metadata.php:ro
+      - ./bitrix/native-api.php:/lab/native-api.php:ro
+      - ./bitrix/php.ini:/usr/local/etc/php/conf.d/zz-native-lab.ini:ro
+      - ./bitrix/official.ini:/usr/local/etc/php/conf.d/zzz-official.ini:ro
+      - ./runtime-probe.php:/lab/runtime-probe.php:ro
+    tmpfs:
+      - /tmp:uid=1000,gid=1000
+      - /srv/native/bitrix/cache:uid=1000,gid=1000
+      - /srv/native/bitrix/managed_cache:uid=1000,gid=1000
+      - /srv/native/bitrix/stack_cache:uid=1000,gid=1000
+      - /srv/native/upload:uid=1000,gid=1000
+    networks: [isolated]
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 1024m
+
+volumes:
+  official-webroot:
+    name: mbk-bitrix-official-webroot-20261106-v1
+    external: true

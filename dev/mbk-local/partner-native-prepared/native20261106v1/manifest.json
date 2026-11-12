@@ -1,0 +1,107 @@
+{
+  "status": "prepared_not_executed",
+  "data_source": "user_fixture",
+  "run_id": "native20261106v1",
+  "schema": "partners_genuine_v1",
+  "tables": [
+    "campaign_statuses",
+    "failed_jobs",
+    "jobs",
+    "migrations",
+    "moonshine_socialites",
+    "moonshine_user_roles",
+    "notifications",
+    "partner_programs",
+    "partners",
+    "password_reset_tokens",
+    "personal_access_tokens",
+    "queue_statuses",
+    "queue_tag_sources",
+    "tag_types",
+    "transaction_types",
+    "users",
+    "working_days",
+    "campaigns",
+    "day_counter",
+    "day_quota",
+    "leads",
+    "matrix_for_send",
+    "moonshine_users",
+    "partner_adjacents",
+    "partner_settings",
+    "tags",
+    "campaign_daily_usage",
+    "campaign_tags",
+    "delivery_history",
+    "distribution_queue",
+    "lead_tags",
+    "regions",
+    "send_plan",
+    "sent",
+    "tag_settings",
+    "balance_transactions",
+    "distribution_queue_tags"
+  ],
+  "schema_sha256": "c61cbf7132341a835a24766ca7b6ff22b7bcd5ca7d78d9f5406d5b83e6333d0c",
+  "fixture_sha256": "adfb0b60bb065ddceada69fe5b661d79598895a0c82466fe143ab179ddc36ef9",
+  "sources": [
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\auto_test_mbk_partners\\auto_test_data\\dump_partners_gitlab.sql",
+      "sha256": "08189c86947b10c4c18df3afc0102ff3f288159da51596d9c0c346fda564a3f7"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2025_04_12_000000_working_days.php",
+      "sha256": "f9b12f1c6862b025029188d6efa74f8991c4c5749751b10d852b388ae961414c"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2026_07_17_000000_bfl_tag_distribution.php",
+      "sha256": "31921900202eb4a838f926f1b00596a879ff5f1f19d3a210af8cf87767f7f6e0"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2026_08_19_000000_partner_adjacents.php",
+      "sha256": "ee29f964d1b8752383eac0e46eb560a2dad15c9caa4827e84d29ae6e2ccfbdd8"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2026_09_14_000000_partner_logo_send_plan.php",
+      "sha256": "55836c02578d1691d95bf45227cfc0ba3772abf28d77dfb4e0b54c3f3b66c4dd"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2025_10_20_000000_calendar.php",
+      "sha256": "318a4e53b16931bb30f8fcc0c23ebb26831c200b25f2d1ad24822b09878da589"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2026_09_02_000000_campaign_label.php",
+      "sha256": "7faa9bb0719349220bcaa2f126353077a9294300d9558aebd2b2dd018ef8c547"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2026_09_25_000000_partner_campaign_name.php",
+      "sha256": "6307d789d8c57425d6c0e514dc2f4fed6374e8b6f8a28aba23884b99184fc206"
+    },
+    {
+      "path": "logs\\local-stack-2026-11-06\\sources\\project-3\\www\\database\\migrations\\2025_04_27_135716_create_jobs_table.php",
+      "sha256": "272142f39d5d6b58c7352429baf7bc1f1730c403dfece33258530e2cdd3daedd"
+    }
+  ],
+  "schema_inferences": [
+    "leads.double_count INT NOT NULL DEFAULT999; no phone_uniq/race parity"
+  ],
+  "customer_rows_copied": 0,
+  "lead_sent_queue_history_rows_seeded": 0,
+  "fixture_parameters": {
+    "hands_count": 1,
+    "delay_minutes": 0,
+    "frozen_days": 1,
+    "duplicate_days": 2,
+    "price": 10,
+    "daily_limit": 2,
+    "opening_balance": 100
+  },
+  "ids": {
+    "partner": 991001,
+    "campaign": 950,
+    "program_tag": 950,
+    "program": 3
+  },
+  "calendar_day": "2026-11-06",
+  "execution_requires_critic_and_empty_schema_check": true
+}

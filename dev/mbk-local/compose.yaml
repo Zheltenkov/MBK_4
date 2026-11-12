@@ -1,0 +1,38 @@
+name: mbk-local-lab
+
+# This is the isolated test perimeter, not a replacement for the three MBK apps.
+services:
+  capture:
+    image: python:3.12-slim
+    pull_policy: never
+    command: [python, -u, /app/capture.py]
+    volumes:
+      - ./capture.py:/app/capture.py:ro
+    networks: [isolated]
+    read_only: true
+    tmpfs: [/tmp]
+    user: "65534:65534"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+
+  probe:
+    image: python:3.12-slim
+    pull_policy: never
+    command: [python, /app/probe.py]
+    environment:
+      MBK_EGRESS_TEST_HOST: ${MBK_EGRESS_TEST_HOST:-}
+      MBK_EGRESS_CONTROL_ID: ${MBK_EGRESS_CONTROL_ID:-}
+    volumes:
+      - ./probe.py:/app/probe.py:ro
+    networks: [isolated]
+    read_only: true
+    user: "65534:65534"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    profiles: [verify]
+    depends_on: [capture]
+
+networks:
+  isolated:
+    internal: true

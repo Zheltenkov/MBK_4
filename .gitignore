@@ -1,0 +1,47 @@
+.env
+.env.bak
+.env.local
+.venv/
+.venv313/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+node_modules/
+.serena/
+logs/
+.tmp/
+.playwright-mcp/
+.streamlit/secrets.toml
+frontend/node_modules/
+frontend/dist/
+.tmp/handoff/
+mbk_handoff_*.zip
+mbk_images_*.tar
+mbk_images_package_*.zip
+
+# Собранный пакет для передачи: образы весят сотни мегабайт
+dist/
+
+# Рабочие копии агентов: временные, в репозитории им не место.
+.claude/worktrees/
+
+# Доступы к чужим системам в репозитории не хранятся.
+gitlab_acsess.txt
+gitlab_access.txt
+доступ.txt
+
+# Рабочее пространство subagent-driven-development: черновики, не код.
+.superpowers/
+
+# Local secrets, runtime state and generated outputs
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.db
+*.log
+outputs/

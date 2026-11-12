@@ -1,0 +1,1434 @@
+[
+  {
+    "id": "employment_negated_business",
+    "phenomenon": "negation",
+    "utterance": "Я не ИП, работаю по найму.",
+    "candidates": [
+      {
+        "path": "employment.type",
+        "value": "hired",
+        "evidence": "работаю по найму"
+      }
+    ],
+    "expected_values": {
+      "employment.type": "official"
+    },
+    "expected_statuses": {
+      "employment.type": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "goal_negated_bankruptcy",
+    "phenomenon": "negation",
+    "utterance": "Банкротство не рассматриваю, мне нужны деньги.",
+    "candidates": [
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "мне нужны деньги"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "cash"
+    },
+    "expected_statuses": {
+      "client.goal": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_shared_with_spouse",
+    "phenomenon": "ownership_semantics",
+    "utterance": "Квартира не только моя, ещё жена собственник.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Квартира"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Квартира"
+      },
+      {
+        "path": "assets.realty.owners",
+        "value": "client_and_spouse",
+        "evidence": "не только моя, ещё жена собственник"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "flat",
+      "assets.realty.owners": "client_and_spouse"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.owners": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_slang_flat",
+    "phenomenon": "colloquial_synonym",
+    "utterance": "Двушка у меня в Москве.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Двушка у меня"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Двушка"
+      },
+      {
+        "path": "assets.realty.city",
+        "value": "Москва",
+        "evidence": "в Москве"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "flat",
+      "assets.realty.city": "Москва"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.city": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_absent",
+    "phenomenon": "negation",
+    "utterance": "Своей недвижимости у меня нет.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": false,
+        "evidence": "недвижимости у меня нет"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": false
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "vehicle_absent",
+    "phenomenon": "negation",
+    "utterance": "Машины у меня сейчас нет.",
+    "candidates": [
+      {
+        "path": "assets.has_vehicle",
+        "value": false,
+        "evidence": "Машины у меня сейчас нет"
+      }
+    ],
+    "expected_values": {
+      "assets.has_vehicle": false
+    },
+    "expected_statuses": {
+      "assets.has_vehicle": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "amount_explicit_correction",
+    "phenomenon": "correction",
+    "utterance": "Точнее, нужно 700 тысяч.",
+    "initial_facts": {
+      "request": {
+        "amount": 400000
+      }
+    },
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": 700000,
+        "operation": "correct",
+        "evidence": "нужно 700 тысяч"
+      }
+    ],
+    "expected_values": {
+      "request.amount": 700000
+    },
+    "expected_statuses": {
+      "request.amount": "confirmed"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_explicit_correction",
+    "phenomenon": "correction",
+    "utterance": "Я ошибся: недвижимости у меня всё-таки нет.",
+    "initial_facts": {
+      "assets": {
+        "has_realty": true
+      }
+    },
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": false,
+        "operation": "correct",
+        "evidence": "недвижимости у меня всё-таки нет"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": false
+    },
+    "expected_statuses": {
+      "assets.has_realty": "confirmed"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "past_not_current_overdue",
+    "phenomenon": "temporal_context",
+    "utterance": "Просрочки были раньше, сейчас их нет.",
+    "candidates": [
+      {
+        "path": "debts.credit_history",
+        "value": "past_overdue",
+        "evidence": "Просрочки были раньше, сейчас их нет"
+      }
+    ],
+    "optional_candidates": [
+      {
+        "path": "debts.overdue_duration",
+        "value": "no_overdue",
+        "evidence": "сейчас их нет"
+      }
+    ],
+    "expected_values": {
+      "debts.credit_history": "past_overdue"
+    },
+    "expected_statuses": {
+      "debts.credit_history": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "ambiguous_debt_range",
+    "phenomenon": "ambiguity",
+    "utterance": "Долгов где-то 300–500 тысяч.",
+    "candidates": [
+      {
+        "path": "debts.total",
+        "value": "300–500 тысяч",
+        "evidence": "300–500 тысяч",
+        "explicitness": "ambiguous",
+        "precision": "range"
+      }
+    ],
+    "expected_absent_paths": [
+      "debts.total"
+    ],
+    "expected_statuses": {
+      "debts.total": "needs_confirmation"
+    },
+    "expected_dispositions": [
+      "needs_confirmation"
+    ]
+  },
+  {
+    "id": "spouse_property_not_client",
+    "phenomenon": "subject_resolution",
+    "utterance": "Квартира есть у жены, не у меня.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Квартира есть у жены",
+        "subject": "spouse"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Квартира",
+        "subject": "spouse"
+      },
+      {
+        "path": "assets.has_realty",
+        "value": false,
+        "evidence": "не у меня"
+      }
+    ],
+    "expected_absent_paths": [
+      "assets.realty.kind"
+    ],
+    "expected_values": {
+      "assets.has_realty": false
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "needs_confirmation"
+    },
+    "expected_dispositions": [
+      "needs_confirmation",
+      "needs_confirmation",
+      "accepted"
+    ]
+  },
+  {
+    "id": "alternatives_explicit_refusal",
+    "phenomenon": "contextual_refusal",
+    "utterance": "Нет, другие варианты я смотреть не хочу.",
+    "candidates": [
+      {
+        "path": "preferences.explore_alternatives",
+        "value": false,
+        "evidence": "другие варианты я смотреть не хочу"
+      }
+    ],
+    "expected_values": {
+      "preferences.explore_alternatives": false
+    },
+    "expected_statuses": {
+      "preferences.explore_alternatives": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "alternatives_explicit_acceptance",
+    "phenomenon": "contextual_confirmation",
+    "utterance": "Да, другой вариант посмотреть готов.",
+    "candidates": [
+      {
+        "path": "preferences.explore_alternatives",
+        "value": true,
+        "evidence": "другой вариант посмотреть готов"
+      }
+    ],
+    "expected_values": {
+      "preferences.explore_alternatives": true
+    },
+    "expected_statuses": {
+      "preferences.explore_alternatives": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "employment_unofficial",
+    "phenomenon": "negation_scope",
+    "utterance": "Официально не оформлен, работаю без трудовой.",
+    "candidates": [
+      {
+        "path": "employment.type",
+        "value": "unofficial",
+        "evidence": "работаю без трудовой"
+      }
+    ],
+    "expected_values": {
+      "employment.type": "unofficial"
+    },
+    "expected_statuses": {
+      "employment.type": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "amount_retracted",
+    "phenomenon": "retraction",
+    "utterance": "Сумму пока не знаю, уберите предыдущую.",
+    "initial_facts": {
+      "request": {
+        "amount": 500000
+      }
+    },
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": null,
+        "operation": "clear",
+        "evidence": "уберите предыдущую"
+      }
+    ],
+    "expected_absent_paths": [
+      "request.amount"
+    ],
+    "expected_statuses": {
+      "request.amount": "unknown"
+    },
+    "expected_dispositions": [
+      "cleared"
+    ]
+  },
+  {
+    "id": "realty_explicit_sole_owner",
+    "phenomenon": "ownership_semantics",
+    "utterance": "Квартира оформлена только на меня, других собственников нет.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Квартира оформлена только на меня"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Квартира"
+      },
+      {
+        "path": "assets.realty.owners",
+        "value": "client_only",
+        "evidence": "только на меня, других собственников нет"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "flat",
+      "assets.realty.owners": "client_only"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.owners": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_mine_with_parent_owners",
+    "phenomenon": "ownership_semantics",
+    "utterance": "Квартира моя, но собственники ещё родители.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Квартира моя"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Квартира"
+      },
+      {
+        "path": "assets.realty.owners",
+        "value": "others",
+        "evidence": "собственники ещё родители"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "flat",
+      "assets.realty.owners": "others"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.owners": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_private_with_spouse",
+    "phenomenon": "multi_fact",
+    "utterance": "Квартира приватизирована на меня и супругу.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Квартира приватизирована на меня"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Квартира"
+      },
+      {
+        "path": "assets.realty.ownership_form",
+        "value": "private",
+        "evidence": "приватизирована"
+      },
+      {
+        "path": "assets.realty.owners",
+        "value": "client_and_spouse",
+        "evidence": "на меня и супругу"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "flat",
+      "assets.realty.ownership_form": "private",
+      "assets.realty.owners": "client_and_spouse"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.ownership_form": "known",
+      "assets.realty.owners": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "vehicle_current_credit",
+    "phenomenon": "multi_fact",
+    "utterance": "У меня машина 2018 года, она ещё в кредите.",
+    "candidates": [
+      {
+        "path": "assets.has_vehicle",
+        "value": true,
+        "evidence": "У меня машина"
+      },
+      {
+        "path": "assets.vehicle.year",
+        "value": 2018,
+        "evidence": "2018 года"
+      },
+      {
+        "path": "assets.vehicle.pledged",
+        "value": true,
+        "evidence": "ещё в кредите"
+      }
+    ],
+    "expected_values": {
+      "assets.has_vehicle": true,
+      "assets.vehicle.year": 2018,
+      "assets.vehicle.pledged": true
+    },
+    "expected_statuses": {
+      "assets.has_vehicle": "known",
+      "assets.vehicle.year": "known",
+      "assets.vehicle.pledged": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "vehicle_explicitly_clean",
+    "phenomenon": "negation",
+    "utterance": "Автомобиль 2020 года, не в кредите и не в залоге.",
+    "candidates": [
+      {
+        "path": "assets.has_vehicle",
+        "value": true,
+        "evidence": "Автомобиль 2020 года"
+      },
+      {
+        "path": "assets.vehicle.year",
+        "value": 2020,
+        "evidence": "2020 года"
+      },
+      {
+        "path": "assets.vehicle.pledged",
+        "value": false,
+        "evidence": "не в кредите и не в залоге"
+      }
+    ],
+    "expected_values": {
+      "assets.has_vehicle": true,
+      "assets.vehicle.year": 2020,
+      "assets.vehicle.pledged": false
+    },
+    "expected_statuses": {
+      "assets.has_vehicle": "known",
+      "assets.vehicle.year": "known",
+      "assets.vehicle.pledged": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "spouse_vehicle_not_client",
+    "phenomenon": "subject_resolution",
+    "utterance": "Машина 2021 года принадлежит мужу.",
+    "candidates": [
+      {
+        "path": "assets.has_vehicle",
+        "value": true,
+        "evidence": "Машина 2021 года принадлежит мужу",
+        "subject": "spouse"
+      },
+      {
+        "path": "assets.vehicle.year",
+        "value": 2021,
+        "evidence": "2021 года",
+        "subject": "spouse"
+      }
+    ],
+    "expected_absent_paths": [
+      "assets.has_vehicle",
+      "assets.vehicle.year"
+    ],
+    "expected_statuses": {
+      "assets.has_vehicle": "needs_confirmation",
+      "assets.vehicle.year": "needs_confirmation"
+    },
+    "expected_dispositions": [
+      "needs_confirmation",
+      "needs_confirmation"
+    ]
+  },
+  {
+    "id": "credit_no_current_overdue",
+    "phenomenon": "negation",
+    "utterance": "Сейчас просрочек по платежам нет.",
+    "candidates": [
+      {
+        "path": "debts.credit_history",
+        "value": "no_overdue",
+        "evidence": "Сейчас просрочек по платежам нет"
+      }
+    ],
+    "optional_candidates": [
+      {
+        "path": "debts.overdue_duration",
+        "value": "no_overdue",
+        "evidence": "просрочек по платежам нет"
+      }
+    ],
+    "expected_values": {
+      "debts.credit_history": "no_overdue"
+    },
+    "expected_statuses": {
+      "debts.credit_history": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "credit_has_current_overdue",
+    "phenomenon": "temporal_context",
+    "utterance": "Сейчас есть просрочка по кредиту.",
+    "candidates": [
+      {
+        "path": "debts.credit_history",
+        "value": "has_overdue",
+        "evidence": "Сейчас есть просрочка"
+      }
+    ],
+    "expected_values": {
+      "debts.credit_history": "has_overdue"
+    },
+    "expected_statuses": {
+      "debts.credit_history": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "credit_overdue_two_months",
+    "phenomenon": "temporal_context",
+    "utterance": "Просрочка идёт уже два месяца.",
+    "candidates": [
+      {
+        "path": "debts.credit_history",
+        "value": "has_overdue",
+        "evidence": "Просрочка идёт"
+      },
+      {
+        "path": "debts.overdue_duration",
+        "value": "from_1m_to_3m",
+        "evidence": "два месяца"
+      }
+    ],
+    "expected_values": {
+      "debts.credit_history": "has_overdue",
+      "debts.overdue_duration": "from_1m_to_3m"
+    },
+    "expected_statuses": {
+      "debts.credit_history": "known",
+      "debts.overdue_duration": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "ready_for_bankruptcy",
+    "phenomenon": "intent",
+    "utterance": "Готов оформить банкротство, новый кредит не нужен.",
+    "candidates": [
+      {
+        "path": "client.goal",
+        "value": "debt_relief",
+        "evidence": "Готов оформить банкротство"
+      },
+      {
+        "path": "debts.credit_history",
+        "value": "ready_bankruptcy",
+        "evidence": "Готов оформить банкротство"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "debt_relief",
+      "debts.credit_history": "ready_bankruptcy"
+    },
+    "expected_statuses": {
+      "client.goal": "known",
+      "debts.credit_history": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "goal_refinance",
+    "phenomenon": "intent",
+    "utterance": "Хочу объединить кредиты и снизить ежемесячный платёж.",
+    "candidates": [
+      {
+        "path": "client.goal",
+        "value": "refinance",
+        "evidence": "объединить кредиты"
+      }
+    ],
+    "optional_candidates": [
+      {
+        "path": "debts.has_active_credits",
+        "value": true,
+        "evidence": "объединить кредиты"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "refinance"
+    },
+    "expected_statuses": {
+      "client.goal": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "goal_cash_with_amount",
+    "phenomenon": "multi_fact",
+    "utterance": "Нужны 600 тысяч наличными.",
+    "candidates": [
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "Нужны 600 тысяч наличными"
+      },
+      {
+        "path": "request.amount",
+        "value": 600000,
+        "evidence": "600 тысяч"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "cash",
+      "request.amount": 600000
+    },
+    "expected_statuses": {
+      "client.goal": "known",
+      "request.amount": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "collateral_explicit_refusal",
+    "phenomenon": "contextual_refusal",
+    "utterance": "Только без залога, имущество закладывать не буду.",
+    "candidates": [
+      {
+        "path": "preferences.collateral_allowed",
+        "value": false,
+        "evidence": "без залога"
+      }
+    ],
+    "expected_values": {
+      "preferences.collateral_allowed": false
+    },
+    "expected_statuses": {
+      "preferences.collateral_allowed": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "collateral_contextual_yes",
+    "phenomenon": "contextual_confirmation",
+    "utterance": "Да, готов.",
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Готовы рассмотреть вариант с залогом имущества?"
+      }
+    ],
+    "candidates": [
+      {
+        "path": "preferences.collateral_allowed",
+        "value": true,
+        "evidence": "Да, готов"
+      }
+    ],
+    "expected_values": {
+      "preferences.collateral_allowed": true
+    },
+    "expected_statuses": {
+      "preferences.collateral_allowed": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "alternatives_contextual_short_yes",
+    "phenomenon": "contextual_confirmation",
+    "utterance": "Да.",
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Если этот путь не подойдёт, готовы посмотреть другой вариант?"
+      }
+    ],
+    "candidates": [
+      {
+        "path": "preferences.explore_alternatives",
+        "value": true,
+        "evidence": "Да"
+      }
+    ],
+    "expected_values": {
+      "preferences.explore_alternatives": true
+    },
+    "expected_statuses": {
+      "preferences.explore_alternatives": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "alternatives_contextual_short_no",
+    "phenomenon": "contextual_refusal",
+    "utterance": "Нет, не хочу.",
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Готовы посмотреть другой способ решения?"
+      }
+    ],
+    "candidates": [
+      {
+        "path": "preferences.explore_alternatives",
+        "value": false,
+        "evidence": "Нет, не хочу"
+      }
+    ],
+    "expected_values": {
+      "preferences.explore_alternatives": false
+    },
+    "expected_statuses": {
+      "preferences.explore_alternatives": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "owner_contextual_short_yes",
+    "phenomenon": "contextual_confirmation",
+    "utterance": "Да.",
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Правильно понимаю, собственник квартиры только вы?"
+      }
+    ],
+    "candidates": [
+      {
+        "path": "assets.realty.owners",
+        "value": "client_only",
+        "evidence": "Да"
+      }
+    ],
+    "optional_candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "source": "system_derived",
+        "evidence": "Да"
+      }
+    ],
+    "expected_values": {
+      "assets.realty.owners": "client_only"
+    },
+    "expected_statuses": {
+      "assets.realty.owners": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_contextual_short_no",
+    "phenomenon": "contextual_refusal",
+    "utterance": "Нет.",
+    "history": [
+      {
+        "role": "assistant",
+        "content": "У вас есть недвижимость?"
+      }
+    ],
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": false,
+        "evidence": "Нет"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": false
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "age_explicit_correction",
+    "phenomenon": "correction",
+    "utterance": "Нет, мне 43, я ошибся.",
+    "initial_facts": {
+      "client": {
+        "age": 42
+      }
+    },
+    "candidates": [
+      {
+        "path": "client.age",
+        "value": 43,
+        "operation": "correct",
+        "evidence": "мне 43, я ошибся"
+      }
+    ],
+    "expected_values": {
+      "client.age": 43
+    },
+    "expected_statuses": {
+      "client.age": "confirmed"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "amount_not_x_but_y",
+    "phenomenon": "correction",
+    "utterance": "Не 700, а 900 тысяч.",
+    "initial_facts": {
+      "request": {
+        "amount": 700000
+      }
+    },
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": 900000,
+        "operation": "correct",
+        "evidence": "Не 700, а 900 тысяч"
+      }
+    ],
+    "expected_values": {
+      "request.amount": 900000
+    },
+    "expected_statuses": {
+      "request.amount": "confirmed"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "amount_clear_without_replacement",
+    "phenomenon": "retraction",
+    "utterance": "Пока не определился с суммой, уберите её.",
+    "initial_facts": {
+      "request": {
+        "amount": 500000
+      }
+    },
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": null,
+        "operation": "clear",
+        "evidence": "уберите её"
+      }
+    ],
+    "expected_absent_paths": [
+      "request.amount"
+    ],
+    "expected_statuses": {
+      "request.amount": "unknown"
+    },
+    "expected_dispositions": [
+      "cleared"
+    ]
+  },
+  {
+    "id": "debt_exact_total",
+    "phenomenon": "numeric_normalization",
+    "utterance": "Общая сумма кредитов и займов 850 тысяч.",
+    "candidates": [
+      {
+        "path": "debts.total",
+        "value": 850000,
+        "evidence": "850 тысяч"
+      }
+    ],
+    "expected_values": {
+      "debts.total": 850000
+    },
+    "expected_statuses": {
+      "debts.total": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "many_facts_single_utterance",
+    "phenomenon": "multi_fact",
+    "utterance": "Мне 46, живу в Туле, нужна сумма 1,2 миллиона, работаю официально.",
+    "candidates": [
+      {
+        "path": "client.age",
+        "value": 46,
+        "evidence": "Мне 46"
+      },
+      {
+        "path": "client.city",
+        "value": "Тула",
+        "evidence": "живу в Туле"
+      },
+      {
+        "path": "request.amount",
+        "value": 1200000,
+        "evidence": "1,2 миллиона"
+      },
+      {
+        "path": "employment.type",
+        "value": "official",
+        "evidence": "работаю официально"
+      }
+    ],
+    "optional_candidates": [
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "нужна сумма 1,2 миллиона"
+      }
+    ],
+    "expected_values": {
+      "client.age": 46,
+      "client.city": "Тула",
+      "request.amount": 1200000,
+      "employment.type": "official"
+    },
+    "expected_statuses": {
+      "client.age": "known",
+      "client.city": "known",
+      "request.amount": "known",
+      "employment.type": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "age_approximate",
+    "phenomenon": "ambiguity",
+    "utterance": "Мне около сорока лет.",
+    "candidates": [
+      {
+        "path": "client.age",
+        "value": "около сорока",
+        "evidence": "около сорока",
+        "explicitness": "ambiguous",
+        "precision": "vague"
+      }
+    ],
+    "expected_absent_paths": [
+      "client.age"
+    ],
+    "expected_statuses": {
+      "client.age": "needs_confirmation"
+    },
+    "expected_dispositions": [
+      "needs_confirmation"
+    ]
+  },
+  {
+    "id": "realty_uncertain_share",
+    "phenomenon": "ambiguity",
+    "utterance": "Вроде есть небольшая доля в квартире.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Вроде есть",
+        "explicitness": "ambiguous"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "квартире"
+      },
+      {
+        "path": "assets.realty.owners",
+        "value": "others",
+        "evidence": "доля",
+        "explicitness": "ambiguous"
+      }
+    ],
+    "expected_absent_paths": [
+      "assets.has_realty",
+      "assets.realty.owners"
+    ],
+    "expected_values": {
+      "assets.realty.kind": "flat"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "needs_confirmation",
+      "assets.realty.kind": "known",
+      "assets.realty.owners": "needs_confirmation"
+    },
+    "expected_dispositions": [
+      "needs_confirmation",
+      "accepted",
+      "needs_confirmation"
+    ]
+  },
+  {
+    "id": "employment_past_business_now_unemployed",
+    "phenomenon": "temporal_context",
+    "utterance": "Раньше был ИП, сейчас не работаю.",
+    "candidates": [
+      {
+        "path": "employment.type",
+        "value": "unemployed",
+        "evidence": "сейчас не работаю"
+      }
+    ],
+    "expected_values": {
+      "employment.type": "unemployed"
+    },
+    "expected_statuses": {
+      "employment.type": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "employment_retired",
+    "phenomenon": "employment_semantics",
+    "utterance": "Я пенсионер, сейчас не работаю.",
+    "candidates": [
+      {
+        "path": "employment.type",
+        "value": "retired",
+        "evidence": "Я пенсионер"
+      }
+    ],
+    "expected_values": {
+      "employment.type": "retired"
+    },
+    "expected_statuses": {
+      "employment.type": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "employment_self_employed",
+    "phenomenon": "employment_semantics",
+    "utterance": "Работаю как самозанятый.",
+    "candidates": [
+      {
+        "path": "employment.type",
+        "value": "self_employed",
+        "evidence": "самозанятый"
+      }
+    ],
+    "expected_values": {
+      "employment.type": "self_employed"
+    },
+    "expected_statuses": {
+      "employment.type": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "employment_official",
+    "phenomenon": "employment_semantics",
+    "utterance": "Устроен официально по трудовой.",
+    "candidates": [
+      {
+        "path": "employment.type",
+        "value": "official",
+        "evidence": "официально по трудовой"
+      }
+    ],
+    "expected_values": {
+      "employment.type": "official"
+    },
+    "expected_statuses": {
+      "employment.type": "known"
+    },
+    "expected_dispositions": [
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_house_colloquial",
+    "phenomenon": "colloquial_synonym",
+    "utterance": "У меня коттедж в Подмосковье.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "У меня коттедж"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "house",
+        "evidence": "коттедж"
+      },
+      {
+        "path": "assets.realty.region",
+        "value": "Подмосковье",
+        "evidence": "в Подмосковье"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "house",
+      "assets.realty.region": "Подмосковье"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.region": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_apartments_private",
+    "phenomenon": "property_semantics",
+    "utterance": "В собственности апартаменты, не квартира.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "В собственности апартаменты"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "apartments",
+        "evidence": "апартаменты, не квартира"
+      },
+      {
+        "path": "assets.realty.ownership_form",
+        "value": "private",
+        "evidence": "В собственности"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "apartments",
+      "assets.realty.ownership_form": "private"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.ownership_form": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_commercial",
+    "phenomenon": "property_semantics",
+    "utterance": "Есть коммерческое помещение под магазин.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Есть коммерческое помещение"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "commercial",
+        "evidence": "коммерческое помещение"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "commercial"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_municipal",
+    "phenomenon": "property_semantics",
+    "utterance": "Квартира у меня есть, но она муниципальная, по соцнайму и не приватизирована.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Квартира у меня есть"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Квартира"
+      },
+      {
+        "path": "assets.realty.ownership_form",
+        "value": "municipal",
+        "evidence": "муниципальная, по соцнайму и не приватизирована"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "flat",
+      "assets.realty.ownership_form": "municipal"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.ownership_form": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "realty_mortgage_restriction",
+    "phenomenon": "property_semantics",
+    "utterance": "Квартира в ипотеке, остаток ещё есть.",
+    "candidates": [
+      {
+        "path": "assets.has_realty",
+        "value": true,
+        "evidence": "Квартира в ипотеке"
+      },
+      {
+        "path": "assets.realty.kind",
+        "value": "flat",
+        "evidence": "Квартира"
+      },
+      {
+        "path": "assets.realty.restriction",
+        "value": "mortgage",
+        "evidence": "в ипотеке"
+      }
+    ],
+    "expected_values": {
+      "assets.has_realty": true,
+      "assets.realty.kind": "flat",
+      "assets.realty.restriction": "mortgage"
+    },
+    "expected_statuses": {
+      "assets.has_realty": "known",
+      "assets.realty.kind": "known",
+      "assets.realty.restriction": "known"
+    },
+    "expected_dispositions": [
+      "accepted",
+      "accepted",
+      "accepted"
+    ]
+  },
+  {
+    "id": "no_relevant_fact",
+    "phenomenon": "negative_control",
+    "utterance": "Пока просто хочу узнать, как вы работаете.",
+    "candidates": [],
+    "expected_values": {},
+    "expected_statuses": {},
+    "expected_dispositions": []
+  }
+]

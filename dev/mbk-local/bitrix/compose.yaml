@@ -1,0 +1,42 @@
+# DRAFT native stage: merge after the existing lab files; no old service is overridden.
+services:
+  bitrix-genuine:
+    image: mbk-local/bitrix:8.4
+    pull_policy: never
+    profiles: [genuine]
+    command: [sh, /lab/start-native.sh]
+    working_dir: /srv/native
+    env_file: ../../logs/local-stack-2026-11-06/bitrix-genuine-v1/native.env
+    volumes:
+      - ../../logs/local-stack-2026-11-06/bitrix-genuine-v1/webroot:/srv/native:ro
+      - native-bitrix-modules:/srv/native/bitrix/modules:ro
+      - native-bitrix-upload:/srv/native/upload
+      - ./bitrix/settings.php:/srv/native/bitrix/.settings.php:ro
+      - ./bitrix/dbconn.php:/srv/native/bitrix/php_interface/dbconn.php:ro
+      - ./bitrix/empty-init.php:/srv/native/bitrix/php_interface/init.php:ro
+      - ./bitrix/empty-init.php:/srv/native/local/php_interface/init.php:ro
+      - ./bitrix/start-native.sh:/lab/start-native.sh:ro
+      - ./bitrix/router.php:/lab/router.php:ro
+      - ./bitrix/kernel.php:/lab/kernel.php:ro
+      - ./bitrix/php.ini:/usr/local/etc/php/conf.d/zz-native-lab.ini:ro
+      - ./runtime-probe.php:/lab/runtime-probe.php:ro
+    tmpfs:
+      - /tmp:uid=1000,gid=1000
+      - /srv/native/bitrix/cache:uid=1000,gid=1000
+      - /srv/native/bitrix/managed_cache:uid=1000,gid=1000
+      - /srv/native/bitrix/stack_cache:uid=1000,gid=1000
+    networks: [isolated]
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 768m
+
+volumes:
+  native-bitrix-modules:
+    name: mbk-genuine-bitrix-modules-20261106-v2
+    external: true
+  native-bitrix-upload:
+    name: mbk-genuine-bitrix-upload-20261106-v1
+    external: true

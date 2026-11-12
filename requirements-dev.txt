@@ -1,0 +1,5 @@
+-r requirements.txt
+
+# Reproducible local quality gates.
+ruff==0.15.12
+pyright==1.1.393

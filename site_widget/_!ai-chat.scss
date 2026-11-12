@@ -1,0 +1,834 @@
+// AI-чат МБК (виджет на главной). Дизайн — chat-handoff v2.
+// Классы с префиксом mbkc-, всё скоупится под #mbk-ai-chat, чтобы не
+// пересекаться с остальными стилями. Разметка — resources/views/ai-chat-widget.blade.php.
+
+// Палитра handoff-дизайна; акцент совпадает с фирменным $red.
+$mbkc-background: #f8f7f5;
+$mbkc-card: #ffffff;
+$mbkc-foreground: #1f2937;
+$mbkc-muted: #f1f5f9;
+$mbkc-muted-foreground: #6b7280;
+$mbkc-border: #e5e7eb;
+$mbkc-primary: #5c6b73;
+$mbkc-tint: rgba(255, 6, 0, 0.102);
+$mbkc-surface: #e8e8e8;
+$mbkc-chat-bg: #e8e4df;
+$mbkc-check: #6ee7b7;
+$mbkc-online: #22c55e;
+
+#mbk-ai-chat {
+	position: fixed;
+	z-index: 2147483000; // поверх сторонних панелей (debugbar и т.п.)
+	right: 2.4rem;
+	bottom: 2.4rem;
+	color: $mbkc-foreground;
+	font-size: 1.4rem;
+	line-height: 1.5;
+	-webkit-font-smoothing: antialiased;
+
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+		margin: 0;
+		padding: 0;
+	}
+
+	button {
+		font: inherit;
+		color: inherit;
+		background: none;
+		border: 0;
+		cursor: pointer;
+	}
+
+	img {
+		display: block;
+	}
+
+	&[data-mode="button"] .mbkc-launcher {
+		display: flex;
+	}
+
+	&[data-mode="widget"] .mbkc-panel {
+		display: flex;
+	}
+
+	&[data-mode="fullscreen"] {
+		right: 0;
+		bottom: 0;
+		left: 0;
+		top: 0;
+
+		.mbkc-panel {
+			display: flex;
+			width: 100%;
+			height: 100%;
+			max-height: none;
+			border-radius: 0;
+		}
+
+		.mbkc-sidebar {
+			display: flex;
+		}
+
+		.mbkc-only-widget {
+			display: none;
+		}
+
+		.mbkc-inputbar-inner {
+			max-width: 76.8rem;
+			margin: 0 auto;
+		}
+	}
+
+	&[data-mode="fullscreen"].mbkc-sidebar-collapsed .mbkc-sidebar {
+		display: none;
+	}
+
+	&[data-mode="widget"] .mbkc-only-fs {
+		display: none;
+	}
+}
+
+// ---------- Кнопка-лончер ----------
+#mbk-ai-chat .mbkc-launcher {
+	display: none;
+	align-items: center;
+	gap: 1.2rem;
+	padding: 0.8rem 1.6rem 0.8rem 0.8rem;
+	background: $mbkc-card;
+	border: 1px solid $mbkc-border;
+	border-radius: 1.6rem;
+	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+	transition: border-color 0.2s, transform 0.2s;
+
+	&:hover {
+		border-color: rgba(92, 107, 115, 0.3);
+		transform: translateY(-1px);
+	}
+}
+
+#mbk-ai-chat .mbkc-launcher-text {
+	text-align: left;
+	min-width: 0;
+}
+
+#mbk-ai-chat .mbkc-launcher-name {
+	font-weight: 600;
+	font-size: 1.4rem;
+}
+
+#mbk-ai-chat .mbkc-launcher-hint {
+	font-size: 1.2rem;
+	color: $mbkc-muted-foreground;
+	max-width: 14rem;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+#mbk-ai-chat .mbkc-badge {
+	position: absolute;
+	top: -0.4rem;
+	right: -0.4rem;
+	min-width: 2rem;
+	height: 2rem;
+	padding: 0 0.5rem;
+	background: $red;
+	color: $white;
+	font-size: 1.2rem;
+	font-weight: 700;
+	border-radius: 999px;
+	display: none;
+	align-items: center;
+	justify-content: center;
+
+	&.mbkc-visible {
+		display: inline-flex;
+	}
+}
+
+// ---------- Аватар ----------
+#mbk-ai-chat .mbkc-avatar {
+	position: relative;
+	flex-shrink: 0;
+
+	img {
+		border-radius: 50%;
+		object-fit: cover;
+	}
+
+	// Размеры аватара +50% (по просьбе МБК 2026-08-20): исходные
+	// 4.8 / 4 / 3.2 rem -> 7.2 / 6 / 4.8 rem. Единые на всех экранах.
+	&--lg img {
+		width: 7.2rem;
+		height: 7.2rem;
+	}
+
+	&--md img {
+		width: 6rem;
+		height: 6rem;
+	}
+
+	&--sm img {
+		width: 4.8rem;
+		height: 4.8rem;
+	}
+
+	&--sm .mbkc-online {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+}
+
+#mbk-ai-chat .mbkc-online {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 1.8rem;
+	height: 1.8rem;
+	background: $mbkc-online;
+	border: 2px solid $white;
+	border-radius: 50%;
+}
+
+// ---------- Панель чата ----------
+#mbk-ai-chat .mbkc-panel {
+	display: none;
+	flex-direction: row;
+	width: 38rem;
+	height: 60rem;
+	max-height: calc(100vh - 4.8rem);
+	background: $mbkc-background;
+	border-radius: 1.6rem;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	overflow: hidden;
+}
+
+// ---------- Сайдбар (только fullscreen на десктопе) ----------
+#mbk-ai-chat .mbkc-sidebar {
+	display: none;
+	width: 32rem;
+	flex-direction: column;
+	background: $mbkc-card;
+	border-right: 1px solid $mbkc-border;
+}
+
+#mbk-ai-chat [data-pane][hidden] {
+	display: none;
+}
+
+#mbk-ai-chat .mbkc-sidebar-head {
+	padding: 1.6rem;
+	border-bottom: 1px solid $mbkc-border;
+}
+
+#mbk-ai-chat .mbkc-sidebar-title {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1.6rem;
+	font-weight: 600;
+	font-size: 1.5rem;
+}
+
+#mbk-ai-chat .mbkc-iconbtn {
+	width: 3.6rem;
+	height: 3.6rem;
+	border-radius: 0.8rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.15s;
+
+	&:hover {
+		background: $mbkc-muted;
+	}
+}
+
+#mbk-ai-chat .mbkc-search {
+	position: relative;
+
+	input {
+		width: 100%;
+		height: 4rem;
+		padding: 0 1.2rem 0 3.8rem;
+		background: $mbkc-surface;
+		border: 0;
+		border-radius: 0.6rem;
+		font: inherit;
+		color: inherit;
+		outline: none;
+	}
+
+	svg {
+		position: absolute;
+		left: 1.2rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: $mbkc-muted-foreground;
+	}
+}
+
+#mbk-ai-chat .mbkc-tabs {
+	display: flex;
+	margin-top: 1.2rem;
+	background: $mbkc-surface;
+	border-radius: 0.8rem;
+	padding: 0.4rem;
+}
+
+#mbk-ai-chat .mbkc-tab {
+	flex: 1;
+	padding: 0.8rem 0;
+	font-size: 1.3rem;
+	font-weight: 500;
+	border-radius: 0.6rem;
+	color: $mbkc-muted-foreground;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+
+	&.mbkc-active {
+		background: $white;
+		color: $mbkc-foreground;
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+	}
+}
+
+#mbk-ai-chat .mbkc-sidebar-body {
+	flex: 1;
+	overflow-y: auto;
+	padding: 0.8rem;
+}
+
+#mbk-ai-chat .mbkc-chat-item {
+	display: flex;
+	align-items: center;
+	gap: 1.2rem;
+	padding: 1.2rem;
+	border-radius: 1.2rem;
+	background: $mbkc-tint;
+	cursor: default;
+}
+
+#mbk-ai-chat .mbkc-chat-item-body {
+	flex: 1;
+	min-width: 0;
+}
+
+#mbk-ai-chat .mbkc-chat-item-name {
+	font-size: 1.3rem;
+	font-weight: 500;
+}
+
+#mbk-ai-chat .mbkc-chat-item-last {
+	font-size: 1.3rem;
+	color: $mbkc-muted-foreground;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 19rem;
+}
+
+#mbk-ai-chat .mbkc-empty {
+	padding: 3.2rem 1.2rem;
+	text-align: center;
+	color: $mbkc-muted-foreground;
+	font-size: 1.3rem;
+}
+
+// ---------- Основная колонка ----------
+#mbk-ai-chat .mbkc-main {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+#mbk-ai-chat .mbkc-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 1rem 1.6rem;
+	background: $mbkc-card;
+	border-bottom: 1px solid $mbkc-border;
+}
+
+#mbk-ai-chat .mbkc-header-person {
+	display: flex;
+	align-items: center;
+	gap: 1.2rem;
+	min-width: 0;
+}
+
+#mbk-ai-chat .mbkc-header-name {
+	font-weight: 600;
+	font-size: 1.4rem;
+}
+
+#mbk-ai-chat .mbkc-header-role {
+	font-size: 1.2rem;
+	color: $mbkc-muted-foreground;
+}
+
+#mbk-ai-chat .mbkc-header-actions {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+// ---------- Лента ----------
+#mbk-ai-chat .mbkc-feed-wrap {
+	flex: 1;
+	position: relative;
+	overflow: hidden;
+	background: $mbkc-chat-bg;
+}
+
+#mbk-ai-chat .mbkc-feed {
+	position: absolute;
+	inset: 0;
+	overflow-y: auto;
+	padding: 1.6rem 0;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+#mbk-ai-chat .mbkc-feed-inner {
+	max-width: 76.8rem;
+	margin: 0 auto;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+}
+
+#mbk-ai-chat .mbkc-row {
+	display: flex;
+	align-items: flex-end;
+	gap: 0.8rem;
+	padding: 0.4rem 1.6rem;
+
+	&--out {
+		flex-direction: row-reverse;
+	}
+}
+
+#mbk-ai-chat .mbkc-bubble {
+	max-width: 76%;
+	padding: 0.8rem 1.6rem;
+	border-radius: 1.6rem;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	font-size: 1.4rem;
+	line-height: 1.55;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	white-space: pre-wrap;
+
+	a {
+		color: $red;
+		text-decoration: underline;
+	}
+}
+
+#mbk-ai-chat .mbkc-row--in .mbkc-bubble {
+	background: $mbkc-card;
+	border: 1px solid rgba(229, 231, 235, 0.5);
+	border-bottom-left-radius: 0.4rem;
+}
+
+#mbk-ai-chat .mbkc-row--out .mbkc-bubble {
+	background: $mbkc-primary;
+	color: $white;
+	border-bottom-right-radius: 0.4rem;
+
+	a {
+		color: $white;
+	}
+}
+
+#mbk-ai-chat .mbkc-meta {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.4rem;
+	margin-top: 0.4rem;
+	font-size: 1rem;
+	color: $mbkc-muted-foreground;
+	white-space: normal;
+}
+
+#mbk-ai-chat .mbkc-row--out .mbkc-meta {
+	color: rgba(255, 255, 255, 0.6);
+}
+
+#mbk-ai-chat .mbkc-check {
+	color: $mbkc-check;
+}
+
+// Системное сообщение / ошибка
+#mbk-ai-chat .mbkc-system {
+	align-self: center;
+	margin: 0.4rem 1.6rem;
+	padding: 0.6rem 1.4rem;
+	background: rgba(255, 255, 255, 0.75);
+	border-radius: 999px;
+	font-size: 1.2rem;
+	color: $mbkc-muted-foreground;
+	text-align: center;
+
+	&--error {
+		color: #ef4444;
+	}
+
+	button {
+		color: $red;
+		text-decoration: underline;
+	}
+}
+
+// Действия восстановления доступны в том же виджете при любом сценарии.
+#mbk-ai-chat .mbkc-status {
+	max-width: calc(100% - 32px);
+	border-radius: 12px;
+	padding: 12px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 14px;
+	line-height: 1.45;
+
+	button {
+		min-height: 44px;
+		color: #bd241b;
+		padding: 4px 8px;
+	}
+}
+
+// Быстрые ответы (чипсы) под репликой бота. Отступ слева — по краю пузыря:
+// отступ строки 1.6rem + аватар 4.8rem + зазор 0.8rem.
+#mbk-ai-chat .mbkc-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.8rem;
+	padding: 0 1.6rem 0 7.2rem;
+}
+
+#mbk-ai-chat .mbkc-chip {
+	padding: 0.6rem 1.4rem;
+	background: $mbkc-card;
+	border: 1px solid $mbkc-border;
+	border-radius: 999px;
+	color: $mbkc-foreground;
+	font-size: 1.3rem;
+	line-height: 1.4;
+	text-align: left;
+	transition: border-color 0.15s, background-color 0.15s;
+
+	&:hover,
+	&:focus-visible {
+		border-color: $red;
+		background: $mbkc-tint;
+		outline: none;
+	}
+}
+
+// Индикатор набора
+#mbk-ai-chat .mbkc-typing {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 1.2rem 1.6rem;
+
+	span {
+		width: 0.8rem;
+		height: 0.8rem;
+		background: rgba(107, 114, 128, 0.6);
+		border-radius: 50%;
+		animation: mbkc-bounce 1s infinite;
+
+		&:nth-child(2) {
+			animation-delay: 0.15s;
+		}
+
+		&:nth-child(3) {
+			animation-delay: 0.3s;
+		}
+	}
+}
+
+@keyframes mbkc-bounce {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+
+	50% {
+		transform: translateY(-25%);
+	}
+}
+
+// ---------- Ввод ----------
+#mbk-ai-chat .mbkc-inputbar {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	padding: 1.2rem;
+	background: $mbkc-card;
+	border-top: 1px solid $mbkc-border;
+}
+
+#mbk-ai-chat .mbkc-inputbar-inner {
+	display: flex;
+	align-items: center;
+	gap: 0.8rem;
+	width: 100%;
+}
+
+#mbk-ai-chat .mbkc-input {
+	flex: 1;
+	height: 4rem;
+	padding: 0 1.2rem;
+	background: $mbkc-surface;
+	border: 0;
+	border-radius: 0.6rem;
+	font: inherit;
+	color: inherit;
+	outline: none;
+	min-width: 0;
+}
+
+#mbk-ai-chat .mbkc-send {
+	width: 4rem;
+	height: 4rem;
+	flex-shrink: 0;
+	background: $red;
+	color: $white;
+	border-radius: 1rem;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: opacity 0.15s;
+
+	&:hover {
+		opacity: 0.9;
+	}
+
+	&:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+}
+
+// ---------- Иконки ----------
+#mbk-ai-chat .mbkc-icon {
+	width: 1.6rem;
+	height: 1.6rem;
+	stroke: currentColor;
+	fill: none;
+	stroke-width: 2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+
+	&--sm {
+		width: 1.4rem;
+		height: 1.4rem;
+	}
+
+	&--lg {
+		width: 1.8rem;
+		height: 1.8rem;
+	}
+}
+
+// ---------- Адаптив ----------
+@media (max-width: 767px) {
+	#mbk-ai-chat[data-mode="button"] {
+		right: 1.6rem;
+		bottom: 1.6rem;
+	}
+
+	#mbk-ai-chat[data-mode="widget"] {
+		right: 0;
+		bottom: 0;
+		left: 0;
+		top: 0;
+
+		.mbkc-panel {
+			width: 100%;
+			height: 100%;
+			max-height: none;
+			border-radius: 0;
+		}
+	}
+
+	#mbk-ai-chat[data-mode="widget"]:not([data-layout="embedded"]),
+	#mbk-ai-chat[data-mode="fullscreen"]:not([data-layout="embedded"]) {
+		top: var(--mbkc-viewport-top, 0px);
+		bottom: auto;
+		height: var(--mbkc-viewport-height, 100vh);
+
+		.mbkc-main { min-height: 0; }
+		.mbkc-header,
+		.mbkc-inputbar { flex-shrink: 0; }
+		.mbkc-input { font-size: 16px; }
+		.mbkc-inputbar { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+		.mbkc-feed { overscroll-behavior-y: contain; }
+	}
+}
+
+@media (max-width: 1023px) {
+	#mbk-ai-chat[data-mode="fullscreen"] .mbkc-sidebar {
+		display: none;
+	}
+
+	#mbk-ai-chat .mbkc-only-desktop {
+		display: none !important;
+	}
+}
+
+// Десктоп: текст сообщений и ввода до стандартного шрифта сайта (1.6rem).
+// На мобиле остаётся 1.4rem (там и так читаемо, а окно уже).
+@media (min-width: 768px) {
+	#mbk-ai-chat .mbkc-bubble,
+	#mbk-ai-chat .mbkc-input {
+		font-size: 1.6rem;
+	}
+
+	// Имя и подпись в превью-кнопке и в шапке крупнее (МБК 2026-08-20):
+	// имена 1.4->2, подписи 1.2->1.6 rem (в тон тексту сообщений).
+	#mbk-ai-chat .mbkc-launcher-name,
+	#mbk-ai-chat .mbkc-header-name {
+		font-size: 2rem;
+	}
+
+	#mbk-ai-chat .mbkc-launcher-hint,
+	#mbk-ai-chat .mbkc-header-role {
+		font-size: 1.6rem;
+	}
+}
+
+// Размеры аватара теперь единые на всех экранах (заданы в блоке «Аватар»
+// выше), отдельного мобильного увеличения не нужно.
+
+// Встроенный чат долговой страницы использует тот же компонент и API.
+#mbk-ai-chat .mbkc-onloader {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	padding: 16px;
+	border: 1px solid $mbkc-border;
+	border-radius: 12px;
+	background: $mbkc-card;
+	font-size: 16px;
+	line-height: 1.45;
+	overflow-wrap: anywhere;
+	p { margin: 0; }
+	.mbkc-onloader-mode { color: #596573; font-size: 13px; }
+	button {
+		min-height: 44px;
+		padding: 10px 14px;
+		border: 1px solid #cbd1d8;
+		border-radius: 8px;
+		background: #fff;
+		color: #18232e;
+		font: inherit;
+		cursor: pointer;
+		&:disabled { opacity: .55; cursor: default; }
+		&:focus-visible { outline: 2px solid #d52b21; outline-offset: 2px; }
+	}
+	[data-action="onloader-accept"] { background: #d52b21; color: #fff; border-color: #d52b21; }
+}
+
+#mbk-ai-chat[data-layout="embedded"] {
+	position: relative;
+	inset: auto;
+	z-index: 1;
+	width: 100%;
+	min-width: 0;
+	min-height: 0;
+	font-size: 16px;
+
+	.mbkc-panel {
+		display: flex;
+		width: 100%;
+		height: 100%;
+		max-height: none;
+		min-height: 0;
+		border: 1px solid $mbkc-border;
+		border-radius: 18px;
+		box-shadow: 0 8px 30px rgba(31, 41, 55, .06);
+	}
+
+	.mbkc-main,
+	.mbkc-feed-wrap { min-height: 0; }
+	.mbkc-header,
+	.mbkc-inputbar { flex-shrink: 0; }
+	.mbkc-sidebar,
+	.mbkc-launcher,
+	.mbkc-online { display: none; }
+	.mbkc-header { padding: 12px 16px; }
+	.mbkc-header-name { font-size: 16px; }
+	.mbkc-header-role { font-size: 13px; }
+	.mbkc-avatar--md img { width: 40px; height: 40px; }
+	.mbkc-avatar--sm img { width: 32px; height: 32px; }
+	.mbkc-feed { overscroll-behavior-y: contain; -webkit-overflow-scrolling: touch; }
+	.mbkc-feed-inner { gap: 10px; }
+	.mbkc-bubble { font-size: 16px; max-width: 84%; overflow-wrap: anywhere; }
+	.mbkc-input { height: 44px; font-size: 16px; }
+	.mbkc-send { width: 44px; height: 44px; background: #d52b21; }
+	.mbkc-inputbar { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+	.mbkc-input:focus-visible,
+	button:focus-visible,
+	.mbkc-feed:focus-visible { outline: 2px solid #d52b21; outline-offset: 2px; }
+	.mbkc-input:disabled { opacity: .65; }
+
+	.mbkc-welcome {
+		margin: 16px;
+		padding: 20px;
+		border-radius: 14px;
+		background: $mbkc-card;
+		border: 1px solid $mbkc-border;
+		h2 { font-size: 20px; line-height: 1.3; }
+		p { margin-top: 10px; font-size: 16px; line-height: 1.5; color: #5b6570; }
+		&[hidden] { display: none; }
+	}
+
+	.mbkc-start {
+		min-height: 44px;
+		margin-top: 16px;
+		padding: 10px 16px;
+		border-radius: 10px;
+		background: #d52b21;
+		color: #fff;
+		font-size: 16px;
+		font-weight: 600;
+		&:disabled { opacity: .6; cursor: default; }
+	}
+
+	.mbkc-sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+	}
+}
+
+@media (max-width: 767px) {
+	#mbk-ai-chat[data-layout="embedded"] .mbkc-panel {
+		border-radius: 16px 16px 0 0;
+		border-right: 0;
+		border-left: 0;
+		border-bottom: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#mbk-ai-chat[data-layout="embedded"] .mbkc-typing span { animation: none; }
+}

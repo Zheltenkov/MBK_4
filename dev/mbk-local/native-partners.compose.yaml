@@ -1,0 +1,60 @@
+name: mbk-partner-native-v1
+
+# Standalone native partners + terminal mock only. No old services are recreated.
+services:
+  partners-native:
+    image: mbk-local/php:8.4
+    pull_policy: never
+    command: [sh, /local/start-app.sh]
+    working_dir: /app
+    env_file: ../../logs/local-stack-2026-11-06/runtime/partner-native.env
+    volumes:
+      - ../../logs/local-stack-2026-11-06/sources/project-3/www:/app:ro
+      - partners-vendor:/app/vendor:ro
+      - ./start-app.sh:/local/start-app.sh:ro
+      - ./router.php:/local/router.php:ro
+      - ./runtime-probe.php:/local/runtime-probe.php:ro
+      - ./probe.py:/local/network-probe.py:ro
+      - ./php-local.ini:/usr/local/etc/php/conf.d/zz-mbk-local.ini:ro
+    tmpfs:
+      - /tmp:uid=1000,gid=1000
+      - /app/storage:uid=1000,gid=1000
+      - /app/bootstrap/cache:uid=1000,gid=1000
+    networks: [lab]
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+
+  partner-native-buyer:
+    image: python:3.12-slim
+    pull_policy: never
+    command: [python, -u, /app/partner-native-buyer.py]
+    env_file: ../../logs/local-stack-2026-11-06/runtime/partner-native-buyer.env
+    volumes:
+      - ./partner-native-buyer.py:/app/partner-native-buyer.py:ro
+      - ./probe.py:/app/network-probe.py:ro
+      - buyer-receipts:/data
+    tmpfs: [/tmp]
+    networks: [lab]
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+
+networks:
+  lab:
+    external: true
+    name: mbk-local-lab_isolated
+
+volumes:
+  partners-vendor:
+    external: true
+    name: mbk-local-lab-vendor-3-20261106
+  buyer-receipts:
+    name: mbk-partner-native-buyer-receipts-v1
+    labels:
+      mbk.local.data-origin: local-mock-buyer
+      mbk.local.role: native-partners-terminal-transport-receipts

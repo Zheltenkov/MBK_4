@@ -1,0 +1,10 @@
+{
+  "run_id": "native20261106v1",
+  "genuine_bitrix_id": "1",
+  "website_operation": "local-write-native20261106v1",
+  "site_lead_id": 7,
+  "native_get_response_sha256": "9d61e4e2bb6a2363617e5b40ffa981e1546804726188abb962f9386a2473c7d3",
+  "site_ack_sha256": "188aa1544590a7067d30bde940a635c721f6ce11a3657feb94890daa814f0c3e",
+  "genuine_evidence_level": "genuine_bitrix_runtime",
+  "armed_at": "2026-11-06T18:49:24.972022+00:00"
+}

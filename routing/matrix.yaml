@@ -1,0 +1,636 @@
+# Матрица маршрутов МБК — единственный источник правды по квалификации.
+#
+# Источник: «Категории и поля для Василия - Таблица.csv» (версия от 2026-07-16).
+# Приоритет: 1-1 высший, 4-2 низший. Бот обходит маршруты строго по возрастанию номера.
+#
+# Менять можно свободно: пороги, приоритеты, состав маршрутов. Код не трогается.
+# Колонки таблицы, не влияющие на диалог (согласие с сайта, партнёр, страница благодарности,
+# офер, тип интеграции), сюда сознательно не перенесены — они не меняют ход разговора.
+
+version: 1
+
+regions:
+  # Классы регионов. Факт client.region_class / assets.realty.region_class принимает
+  # одно из этих имён; сопоставление «строка адреса → класс» живёт в routing/normalize.py.
+  moscow_mo: ["Москва", "Московская область"]
+
+  # Заполняется загрузчиком из списка Кредит.Клаб как пары «регион<TAB>город».
+  # Проверяется именно пара, а не весь регион целиком.
+  realty_list: []
+
+  # Лист «МБК» исходного файла: только города, без региона. Пустая часть региона
+  # в паре означает «в любом регионе» — так список и задан заказчиком.
+  mbk_list: []
+
+region_sources:
+  # Два разных листа файла «Категории и поля для Василия.xlsx». Это не дубликаты:
+  # маршрут 1-2 (партнёр МБК) идёт по своему списку городов, а 1-3 — по списку
+  # Кредит.Клаб. Пока оба висели на одном справочнике, условия 1-3 были строгим
+  # подмножеством 1-2 и маршрут 1-3 не мог достаться никому.
+  realty_list: "data/credit_club_locations.csv"
+  mbk_list: "data/mbk_locations.csv"
+
+# --------------------------------------------------------------------------- #
+# Поля: что бот умеет спрашивать и как об этом говорить
+# --------------------------------------------------------------------------- #
+fields:
+  # Контактный bootstrap. Сначала человек свободно описывает обращение, следующим
+  # сообщением бот узнаёт имя и переходит к квалификации. Телефон — не bootstrap:
+  # его спрашивают только перед выдачей ссылки (см. planner.plan, action="contacts"),
+  # когда маршрут уже найден. Так и было на созвоне: контакты нужны для дублей и
+  # партнёрских проверок непосредственно перед обращением к внешнему сервису.
+  client.name:
+    label: "имя"
+    kind: text
+    ask: "как к клиенту обращаться"
+    why: "так разговор останется личным, а не превратится в обезличенную анкету"
+    initial: true
+    contact: true
+
+  client.phone:
+    label: "телефон"
+    kind: text
+    ask: "номер телефона для сохранения обращения и обязательных проверок"
+    why: "телефон нужен для проверки дублей и корректной передачи обращения"
+    contact: true
+
+  # Динамический общий слой (common: true). Планировщик берёт из него только поля,
+  # которые действительно нужны ещё живым маршрутам выбранного intent. Поэтому для
+  # cash/refinance здесь обычно появляются сумма, возраст и регион, а для debt_relief
+  # сумма запроса и возраст не задаются: в условиях БФЛ их нет.
+  request.amount:
+    label: "нужная сумма"
+    kind: money
+    ask: "какая сумма нужна"
+    why: "от суммы зависит, какие варианты вообще имеет смысл смотреть"
+    common: true
+
+  client.age:
+    label: "возраст"
+    kind: int
+    ask: "сколько лет клиенту"
+    why: "по возрасту часть вариантов отсекается сразу"
+    common: true
+
+  client.region_class:
+    label: "регион проживания"
+    kind: enum
+    values: ["moscow_mo", "rf_other"]
+    ask: "в каком городе и регионе живёт"
+    why: "набор доступных решений в Москве и в регионах разный"
+    common: true
+
+  # Цель обращения бот отдельно не спрашивает: анкета одна для всех, а понимание
+  # запроса извлекается из свободной первой реплики и уезжает в CRM как аналитика.
+  client.goal:
+    label: "цель обращения"
+    kind: enum
+    values: ["cash", "debt_relief", "refinance"]
+    ask: "что нужно сделать — получить деньги, рефинансировать долги или разобраться с задолженностью"
+    why: "так я не буду задавать вопросы про варианты, которые клиент не рассматривает"
+
+  preferences.collateral_allowed:
+    label: "готовность рассматривать любой залог"
+    kind: bool
+    ask: "готов ли клиент рассматривать варианты с залогом имущества"
+    why: "используется только при общем отказе от любых залоговых вариантов"
+
+  preferences.realty_collateral_allowed:
+    label: "готовность рассматривать залог недвижимости"
+    kind: bool
+    ask: "готов ли клиент рассматривать залог именно недвижимости"
+    why: "отказ от квартиры не должен отключать возможный залог автомобиля"
+
+  preferences.vehicle_collateral_allowed:
+    label: "готовность рассматривать залог автомобиля"
+    kind: bool
+    ask: "готов ли клиент рассматривать залог именно автомобиля"
+    why: "отказ от автомобиля не должен отключать возможный залог недвижимости"
+
+  preferences.preferred_collateral:
+    label: "предпочитаемый вид залога"
+    kind: enum
+    values: ["realty", "vehicle", "any"]
+    ask: "какой залог клиент явно предпочитает — недвижимость, автомобиль или любой"
+    why: "явное предпочтение клиента меняет порядок проверки, но не условия маршрутов"
+
+  preferences.explore_alternatives:
+    label: "согласие посмотреть альтернативы"
+    kind: bool
+    ask: "готов ли клиент посмотреть другие способы решения, если исходный запрос не проходит"
+    why: "без согласия не переключаем человека на другой сценарий"
+
+  assets.has_realty:
+    label: "недвижимость в собственности"
+    kind: bool
+    ask: "есть ли недвижимость в собственности"
+    why: "собственность заметно расширяет набор доступных решений"
+    # Кнопки под вопросом (спека 2026-09-14-quick-replies-questionnaire-design.md):
+    # текст кнопки уходит боту обычным сообщением и обязан разбираться быстрым
+    # разбором без модели — см. tests/test_matrix_quick_replies.py.
+    quick_replies:
+      - {label: "Да, есть", value: "Да, есть"}
+      - {label: "Нет", value: "Нет"}
+
+  assets.realty.region_class:
+    label: "регион недвижимости"
+    kind: enum
+    values: ["moscow_mo", "mbk_list", "realty_list", "rf_other"]
+    ask: "в каком регионе и городе находится недвижимость"
+    why: "объект и прописка могут быть в разных регионах, а это важно"
+    after: assets.has_realty
+    # Решение заказчика 30.07.2026: если тип объекта закрыл все залоговые
+    # маршруты по недвижимости, добивать остальные вопросы про объект
+    # незачем. Флаг стоит точечно — см. _settled_fields в planner.py.
+    skip_when_settled: true
+
+  assets.realty.kind:
+    label: "тип недвижимости"
+    kind: enum
+    # room добавлена 12.08.2026: нормализатор её выдаёт, а в списке её не было —
+    # факт получал значение вне перечисления. Ни один залоговый маршрут комнату
+    # не принимает, и это верно по бизнесу; важно, что теперь это видно явно, а
+    # в CRM уезжает честный тип объекта, а не «квартира».
+    values: ["flat", "apartments", "commercial", "house", "room", "other"]
+    ask: "что именно за объект — квартира, комната, апартаменты, коммерция или дом"
+    why: "разные типы объектов проходят по-разному"
+    after: assets.has_realty
+    quick_replies:
+      - {label: "Квартира", value: "Квартира"}
+      - {label: "Дом", value: "Дом"}
+      - {label: "Апартаменты", value: "Апартаменты"}
+      - {label: "Коммерческая", value: "Коммерческая"}
+
+  assets.realty.ownership_form:
+    label: "форма собственности"
+    kind: enum
+    values: ["private", "municipal", "other"]
+    ask: "объект в частной собственности или муниципальный/неприватизированный"
+    why: "с муниципальным жильём работать нельзя"
+    after: assets.has_realty
+    # Решение заказчика 30.07.2026: если тип объекта закрыл все залоговые
+    # маршруты по недвижимости, добивать остальные вопросы про объект
+    # незачем. Флаг стоит точечно — см. _settled_fields в planner.py.
+    skip_when_settled: true
+
+  assets.realty.owners:
+    label: "состав собственников"
+    kind: enum
+    values: ["client_only", "client_and_spouse", "others"]
+    ask: "кто собственник — только клиент, клиент с супругом(ой) или есть ещё владельцы"
+    why: "если собственников больше, понадобится их согласие"
+    after: assets.has_realty
+    # Решение заказчика 30.07.2026: если тип объекта закрыл все залоговые
+    # маршруты по недвижимости, добивать остальные вопросы про объект
+    # незачем. Флаг стоит точечно — см. _settled_fields в planner.py.
+    skip_when_settled: true
+
+  # Пишется не клиентом, а рабочим потоком CRM после realty-qualification, и
+  # потому в script не входит. Значение инвертировано намеренно: `after`
+  # открывает подвопрос при ИСТИННОМ родителе, а спросить про второй объект
+  # надо ровно тогда, когда первый под залог не прошёл.
+  assets.realty.needs_second:
+    label: "первый объект под залог не проходит"
+    kind: bool
+    # Клиенту этот вопрос не задаётся никогда — значение приходит из ответа
+    # realty-qualification. Формулировка нужна схеме, а не диалогу.
+    ask: "нужен ли второй объект (служебное, не спрашивается)"
+    why: "служебное поле"
+
+  assets.has_second_realty:
+    label: "есть ещё недвижимость"
+    kind: bool
+    ask: "есть ли ещё какая-то недвижимость в собственности"
+    why: "другой объект может подойти там, где первый не проходит"
+    after: assets.realty.needs_second
+    quick_replies:
+      - {label: "Да, есть", value: "Да, есть"}
+      - {label: "Нет", value: "Нет"}
+
+  assets.realty_2.region_class:
+    label: "регион второго объекта"
+    kind: enum
+    values: ["moscow_mo", "mbk_list", "realty_list", "rf_other"]
+    ask: "в каком регионе и городе находится этот объект"
+    why: "объект и прописка могут быть в разных регионах, а это важно"
+    after: assets.has_second_realty
+
+  assets.realty_2.kind:
+    label: "тип второго объекта"
+    kind: enum
+    values: ["flat", "apartments", "commercial", "house", "room", "other"]
+    ask: "что именно за объект — квартира, комната, апартаменты, коммерция или дом"
+    why: "разные типы объектов проходят по-разному"
+    after: assets.has_second_realty
+
+  assets.realty_2.ownership_form:
+    label: "форма собственности второго объекта"
+    kind: enum
+    values: ["private", "municipal", "other"]
+    ask: "этот объект в частной собственности или муниципальный"
+    why: "с муниципальным жильём работать нельзя"
+    after: assets.has_second_realty
+
+  assets.realty_2.owners:
+    label: "состав собственников второго объекта"
+    kind: enum
+    values: ["client_only", "client_and_spouse", "others"]
+    ask: "кто собственник этого объекта"
+    why: "если собственников больше, понадобится их согласие"
+    after: assets.has_second_realty
+
+  # Не является условием маршрута и не спрашивается специально. Если клиент сам
+  # сообщает об ипотеке/залоге/аресте, сохраняем факт для lead-intake.
+  assets.realty.restriction:
+    label: "обременение недвижимости"
+    kind: enum
+    values: ["none", "mortgage", "pledge", "arrest"]
+    ask: "есть ли на недвижимости ипотека, залог или арест"
+    why: "это полезно передать специалисту, если клиент сообщил сам"
+    after: assets.has_realty
+
+  assets.has_vehicle:
+    label: "автомобиль в собственности"
+    kind: bool
+    ask: "есть ли автомобиль в собственности"
+    why: "машина — ещё один рабочий вариант, если недвижимость не подошла"
+    quick_replies:
+      - {label: "Да, есть", value: "Да, есть"}
+      - {label: "Нет", value: "Нет"}
+
+  assets.vehicle.year:
+    label: "год выпуска авто"
+    kind: int
+    ask: "какого года выпуска автомобиль"
+    why: "по слишком старым машинам решения нет"
+    after: assets.has_vehicle
+
+  assets.vehicle.make:
+    label: "марка авто"
+    kind: text
+    ask: "какая марка автомобиля"
+    why: "марка и модель нужны специалисту для оценки машины"
+    after: assets.has_vehicle
+
+  assets.vehicle.model:
+    label: "модель авто"
+    kind: text
+    ask: "какая модель автомобиля"
+    why: "марка и модель нужны специалисту для оценки машины"
+    after: assets.has_vehicle
+
+  assets.vehicle.pledged:
+    label: "авто в кредите/залоге"
+    kind: bool
+    ask: "автомобиль в кредите или залоге, или чистый"
+    why: "машина в кредите уже занята и не подойдёт"
+    after: assets.has_vehicle
+    quick_replies:
+      - {label: "В кредите", value: "В кредите"}
+      - {label: "В залоге", value: "В залоге"}
+      - {label: "Чистая", value: "Чистая"}
+
+  debts.has_active_credits:
+    label: "действующие кредиты"
+    kind: bool
+    ask: "есть ли сейчас действующие кредиты или займы"
+    why: "от текущей нагрузки зависит, что вообще имеет смысл предлагать"
+    quick_replies:
+      - {label: "Да, есть", value: "Да, есть"}
+      - {label: "Нет", value: "Нет"}
+
+  debts.total:
+    label: "общая задолженность"
+    kind: money
+    # Уточнение с созвона: считаем кредиты И займы одной суммой, не раздельно.
+    ask: "какая общая сумма задолженности по кредитам и займам вместе"
+    why: "от размера долга зависит, какой путь имеет смысл"
+    after: debts.has_active_credits
+
+  # Анкета этот вопрос напрямую не задаёт: значение выводит routing/derive.py из
+  # ответов про действующие кредиты и срок просрочки. Спецификация нужна, потому
+  # что на поле опираются маршруты БФЛ и оно уезжает в CRM.
+  debts.credit_history:
+    label: "кредитная история"
+    kind: enum
+    values: ["no_overdue", "past_overdue", "has_overdue", "ready_bankruptcy"]
+    ask: "есть ли сейчас просрочки по платежам"
+    why: "просрочки закрывают часть вариантов и открывают другие"
+
+  debts.overdue_duration:
+    label: "продолжительность просрочки"
+    kind: enum
+    values: ["no_overdue", "up_to_1m", "from_1m_to_3m", "from_3m_to_6m", "over_6m"]
+    ask: "есть ли сейчас просрочка по платежам и как давно она тянется"
+    why: "срок просрочки решает, что ещё доступно"
+    after: debts.has_active_credits
+    # Четыре кнопки на пять корзин: «Больше 3 месяцев» записывается нижней
+    # корзиной (3–6 месяцев) — маршруты делят срок ровно по этой границе, а кто
+    # хочет точнее, напишет словами («год», «больше полугода»).
+    quick_replies:
+      - {label: "Просрочек нет", value: "Просрочек нет"}
+      - {label: "До месяца", value: "До месяца"}
+      - {label: "1–3 месяца", value: "1–3 месяца"}
+      - {label: "Больше 3 месяцев", value: "Больше 3 месяцев"}
+
+  employment.type:
+    label: "трудоустройство"
+    kind: enum
+    values: ["business", "official", "hired", "unofficial", "self_employed", "retired", "unemployed"]
+    ask: "работает по найму, свой бизнес или сейчас не работает"
+    why: "часть решений требует подтверждённого дохода"
+    quick_replies:
+      - {label: "По найму", value: "По найму"}
+      - {label: "Свой бизнес", value: "Свой бизнес"}
+      - {label: "Не работаю", value: "Не работаю"}
+
+  employment.income:
+    label: "официальный доход"
+    kind: money
+    ask: "какой официальный доход в месяц"
+    why: "по доходу видно, какая нагрузка реально посильна"
+    after: employment.type
+    # Безработного и пенсионера про зарплату не спрашиваем: «unemployed» —
+    # непустая строка, поэтому одного `after` здесь недостаточно.
+    after_in: ["business", "official", "hired", "unofficial", "self_employed"]
+
+# --------------------------------------------------------------------------- #
+# Сценарий опроса
+# --------------------------------------------------------------------------- #
+# Фиксированный порядок анкеты (созвон 28.07.2026, «Вопросы_порядок.txt»).
+# Приоритеты маршрутов на порядок вопросов больше не влияют: анкета собирается
+# целиком, классификатор вызывается один раз в конце. Возражения клиента
+# («не хочу под залог») отрабатываются словами и состав вопросов не меняют.
+#
+# Ветвления здесь нет намеренно — оно живёт в `after`/`after_in` у самих полей,
+# поэтому шаг с невыполненным предусловием просто пропускается. Нет недвижимости —
+# обход сам проваливается к блоку авто.
+#
+# Имя и телефон сюда не входят: имя собирается в bootstrap, телефон — после
+# классификации, чтобы выбрать тон финальной фразы.
+# Переходы вставляет backend безусловно, до того как известно, что клиент
+# ответил. Поэтому в них нет оценочных зачинов («супер», «отлично»): в логах
+# 20260728_200727 такой зачин четырежды достался людям, только что сказавшим
+# «не справляюсь с долгами» и «сейчас не работаю». Начальный шаг сразу
+# задаёт нужный вопрос. Тематический переход к активам сохранён отдельно.
+# Вопросы, не тянущие за собой подвопросов, спрашиваются вместе: заказчик
+# 30.07.2026 назвал полтора десятка отдельных ходов «слишком много» и предложил
+# начать с пары «сумма + возраст». Условие про подвопросы — тоже его, и оно
+# совпадает с уже существующим запретом делить ход между родителем и ребёнком.
+script:
+  - ask: [request.amount, client.age]
+  # Регион спрашиваем отдельно: ответ уходит в DaData, и при одноимённых городах
+  # бот переспрашивает — в паре с другим вопросом это выглядело бы путано.
+  - ask: [client.region_class]
+  - ask: [debts.has_active_credits]
+  # Долг и срок просрочки — двумя вопросами. Спрошенные одной репликой, они
+  # трижды теряли срок: «Ее нет» (лид 3496486), «Пока три дня» (3498907),
+  # «1300» → «1300000» (3508342, 30.09.2026) — клиент отвечал на половину
+  # вопроса, а вторая уходила в потолок попыток. Без срока CRM не собирает
+  # кредитную историю. Отдельному вопросу положены кнопки.
+  - ask: [debts.total]
+  - ask: [debts.overdue_duration]
+  - ask: [employment.type]
+  - ask: [employment.income]
+  - ask: [assets.has_realty]
+    transition: "{name}, теперь про активы — они заметно расширяют возможности. Мы почти закончили."
+  - ask: [assets.realty.kind]
+  - ask: [assets.realty.region_class]
+  - ask: [assets.realty.ownership_form, assets.realty.owners]
+  - ask: [assets.has_second_realty]
+  - ask: [assets.realty_2.region_class, assets.realty_2.kind]
+  - ask: [assets.realty_2.ownership_form, assets.realty_2.owners]
+  - ask: [assets.has_vehicle]
+  - ask: [assets.vehicle.year, assets.vehicle.make, assets.vehicle.model]
+  - ask: [assets.vehicle.pledged]
+
+# --------------------------------------------------------------------------- #
+# Маршруты
+# --------------------------------------------------------------------------- #
+routes:
+  # === 1-x. Залог недвижимости ===
+  - id: realty_msk
+    priority: "1-1"
+    product: "Залог недвижимости"
+    segment: "Мск/МО"
+    family: realty
+    destination: "Микросервис"
+    category: "1 категория"
+    conditions:
+      - {field: request.amount, op: gte, value: 150000}
+      - {field: client.age, op: gte, value: 21}
+      - {field: assets.has_realty, op: eq, value: true}
+      - {field: assets.realty.region_class, op: eq, value: "moscow_mo"}
+      - {field: assets.realty.kind, op: in, value: ["flat", "apartments", "commercial"]}
+      - {field: assets.realty.ownership_form, op: eq, value: "private"}
+      - {field: assets.realty.owners, op: in, value: ["client_only", "client_and_spouse"]}
+
+  - id: realty_rf
+    priority: "1-2"
+    product: "Залог недвижимости"
+    segment: "РФ"
+    family: realty
+    destination: "МБК"
+    category: "1 категория регион"
+    # Лист «МБК», а не Кредит.Клаб: это разные справочники (см. region_sources).
+    requires_region_list: mbk_list
+    conditions:
+      - {field: request.amount, op: gte, value: 300000}
+      - {field: client.age, op: between, value: [21, 65]}
+      - {field: assets.has_realty, op: eq, value: true}
+      - {field: assets.realty.region_class, op: eq, value: "mbk_list"}
+      - {field: assets.realty.kind, op: in, value: ["flat", "apartments", "commercial"]}
+      - {field: assets.realty.ownership_form, op: eq, value: "private"}
+      - {field: assets.realty.owners, op: in, value: ["client_only", "client_and_spouse"]}
+
+  - id: credit_club
+    priority: "1-3"
+    product: "Залог недвижимости"
+    segment: "Кредит.Клаб"
+    family: realty
+    destination: "Микросервис Кредит.Клаб"
+    category: "1 категория СРА"
+    landing: "https://www.mbk.ru/thanks-credit-club"
+    requires_region_list: realty_list
+    conditions:
+      - {field: request.amount, op: gte, value: 300000}
+      - {field: client.age, op: between, value: [21, 65]}
+      - {field: assets.has_realty, op: eq, value: true}
+      - {field: assets.realty.region_class, op: eq, value: "realty_list"}
+      # Только квартира — апартаменты и коммерция сюда не проходят.
+      - {field: assets.realty.kind, op: eq, value: "flat"}
+      - {field: assets.realty.ownership_form, op: eq, value: "private"}
+      - {field: assets.realty.owners, op: in, value: ["client_only", "client_and_spouse"]}
+      # В исходной CSV допустимые значения стоят в колонке
+      # «Продолжительность просрочки», а не «Кредитная история».
+      - field: debts.overdue_duration
+        op: in
+        value: ["no_overdue", "up_to_1m", "from_1m_to_3m"]
+        allow_empty: true
+
+  # === 2-x. БФЛ. Внимание: не зависит ни от суммы запроса, ни от возраста. ===
+  - id: bfl_msk
+    priority: "2-1"
+    product: "БФЛ"
+    segment: "Мск/МО"
+    family: debt_relief
+    destination: "Микросервис БФЛ"
+    category: "БФЛ"
+    conditions:
+      - {field: client.region_class, op: eq, value: "moscow_mo"}
+      - {field: debts.total, op: gte, value: 300000}
+      # Исходная таблица перечисляет только «Есть просрочки» и «Нет просрочек
+      # платежа», но проходят они одинаково — значит поле у БФЛ не отсекает,
+      # а требует ответа: реальные фильтры здесь сумма долга и регион.
+      # Поэтому по решению заказчика от 28.07.2026 проходят все четыре ответа.
+      # Иначе клиент, сказавший «готов оформить банкротство», единственный не
+      # попадал в банкротство вообще. Коды 9256 и 9258 есть в CRM.
+      - field: debts.credit_history
+        op: in
+        value: ["has_overdue", "no_overdue", "past_overdue", "ready_bankruptcy"]
+
+  - id: bfl_rf
+    priority: "2-2"
+    product: "БФЛ"
+    segment: "РФ"
+    family: debt_relief
+    destination: "Микросервис БФЛ Р"
+    category: "БФЛ Регионы"
+    conditions:
+      - {field: client.region_class, op: eq, value: "rf_other"}
+      - {field: debts.total, op: gte, value: 300000}
+      # Исходная таблица перечисляет только «Есть просрочки» и «Нет просрочек
+      # платежа», но проходят они одинаково — значит поле у БФЛ не отсекает,
+      # а требует ответа: реальные фильтры здесь сумма долга и регион.
+      # Поэтому по решению заказчика от 28.07.2026 проходят все четыре ответа.
+      # Иначе клиент, сказавший «готов оформить банкротство», единственный не
+      # попадал в банкротство вообще. Коды 9256 и 9258 есть в CRM.
+      - field: debts.credit_history
+        op: in
+        value: ["has_overdue", "no_overdue", "past_overdue", "ready_bankruptcy"]
+
+  - id: bfl_cpa
+    priority: "2-3"
+    product: "БФЛ"
+    segment: "БФЛ СРА"
+    family: debt_relief
+    destination: "Сода Тех 190"
+    category: "БФЛ СРА"
+    conditions:
+      # Регион не важен — единственный маршрут без географии.
+      - {field: debts.total, op: between, value: [190000, 299999]}
+      # Исходная таблица перечисляет только «Есть просрочки» и «Нет просрочек
+      # платежа», но проходят они одинаково — значит поле у БФЛ не отсекает,
+      # а требует ответа: реальные фильтры здесь сумма долга и регион.
+      # Поэтому по решению заказчика от 28.07.2026 проходят все четыре ответа.
+      # Иначе клиент, сказавший «готов оформить банкротство», единственный не
+      # попадал в банкротство вообще. Коды 9256 и 9258 есть в CRM.
+      - field: debts.credit_history
+        op: in
+        value: ["has_overdue", "no_overdue", "past_overdue", "ready_bankruptcy"]
+
+  # === 3-x. Залог авто ===
+  - id: auto_api_msk
+    priority: "3-1"
+    product: "Залог авто"
+    segment: "АПИ Мск/МО"
+    family: vehicle
+    destination: "Микросервис А"
+    category: "4 категория"
+    landing: "https://info.mbk.ru/spasibo-zaim-zalog-pts"
+    conditions:
+      - {field: request.amount, op: lte, value: 500000}
+      - {field: client.age, op: between, value: [20, 65]}
+      - {field: client.region_class, op: eq, value: "moscow_mo"}
+      - {field: assets.has_vehicle, op: eq, value: true}
+      - {field: assets.vehicle.year, op: gte, value: 2008}
+      - {field: assets.vehicle.pledged, op: eq, value: false}
+      - field: debts.overdue_duration
+        op: in
+        value: ["no_overdue", "up_to_1m", "from_1m_to_3m"]
+        allow_empty: true
+
+  - id: auto_api_rf
+    priority: "3-1"
+    product: "Залог авто"
+    segment: "АПИ РФ"
+    family: vehicle
+    destination: "Микросервис А"
+    category: "5 категория"
+    landing: "https://info.mbk.ru/spasibo-zaim-zalog-pts"
+    conditions:
+      - {field: request.amount, op: lte, value: 500000}
+      - {field: client.age, op: between, value: [20, 65]}
+      - {field: client.region_class, op: eq, value: "rf_other"}
+      - {field: assets.has_vehicle, op: eq, value: true}
+      - {field: assets.vehicle.year, op: gte, value: 2008}
+      - {field: assets.vehicle.pledged, op: eq, value: false}
+      - field: debts.overdue_duration
+        op: in
+        value: ["no_overdue", "up_to_1m", "from_1m_to_3m"]
+        allow_empty: true
+
+  - id: auto_msk
+    priority: "3-2"
+    product: "Залог авто"
+    segment: "Мск/МО"
+    family: vehicle
+    destination: "МБК"
+    category: "4 категория"
+    landing: "https://info.mbk.ru/spasibo-zaim-zalog-pts"
+    conditions:
+      - {field: request.amount, op: gt, value: 500000}
+      - {field: client.age, op: between, value: [20, 65]}
+      - {field: client.region_class, op: eq, value: "moscow_mo"}
+      - {field: assets.has_vehicle, op: eq, value: true}
+      - {field: assets.vehicle.year, op: gte, value: 2008}
+      - {field: assets.vehicle.pledged, op: eq, value: false}
+
+  - id: auto_rf
+    priority: "3-3"
+    product: "Залог авто"
+    segment: "РФ"
+    family: vehicle
+    destination: "МБК"
+    category: "5 категория"
+    landing: "https://info.mbk.ru/spasibo-zaim-zalog-pts"
+    conditions:
+      - {field: request.amount, op: gt, value: 500000}
+      - {field: client.age, op: between, value: [20, 65]}
+      - {field: client.region_class, op: eq, value: "rf_other"}
+      - {field: assets.has_vehicle, op: eq, value: true}
+      - {field: assets.vehicle.year, op: gte, value: 2008}
+      - {field: assets.vehicle.pledged, op: eq, value: false}
+
+  # === 4-x. Потреб ===
+  - id: consumer
+    priority: "4-1"
+    product: "Потреб"
+    segment: "Потреб"
+    family: consumer
+    destination: "Микросервис П"
+    category: "Потреб"
+    conditions:
+      - {field: request.amount, op: gte, value: 500000}
+      - {field: client.age, op: between, value: [25, 60]}
+      - {field: client.region_class, op: eq, value: "moscow_mo"}
+      - {field: debts.credit_history, op: eq, value: "no_overdue", allow_empty: true}
+      - {field: debts.overdue_duration, op: eq, value: "no_overdue", allow_empty: true}
+      # В исходной таблице колонка «Трудоустройство» перечисляет только
+      # «Бизнес / Официально / Найм». Самозанятый добавлен по прямому решению
+      # заказчика от 27.07.2026 («на потреб 4-1»), а не по недосмотру.
+      - {field: employment.type, op: in, value: ["business", "official", "hired", "self_employed"]}
+
+  - id: consumer_second
+    priority: "4-2"
+    product: "Потреб"
+    segment: "2-й сорт"
+    family: consumer
+    destination: "Микросервис П 2-й сорт"
+    category: "Потреб 2-й сорт"
+    conditions:
+      - {field: request.amount, op: gte, value: 150000}
+      - {field: client.age, op: between, value: [25, 60]}
+      - {field: client.region_class, op: eq, value: "moscow_mo"}
+      - {field: debts.credit_history, op: eq, value: "no_overdue", allow_empty: true}
+      - {field: debts.overdue_duration, op: eq, value: "no_overdue", allow_empty: true}

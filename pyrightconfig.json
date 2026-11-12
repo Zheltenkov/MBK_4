@@ -1,0 +1,17 @@
+{
+  "include": ["."],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".claude",
+    ".venv313",
+    "logs",
+    "frontend",
+    "tests"
+  ],
+  "extraPaths": ["."],
+  "venvPath": ".",
+  "venv": ".venv313",
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "basic"
+}

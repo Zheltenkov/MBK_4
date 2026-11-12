@@ -1,0 +1,31 @@
+{
+  "schema": "partners_genuine_v1",
+  "data_source": "user_fixture",
+  "counts": {
+    "leads": 0,
+    "sent": 0,
+    "distribution_queue": 0,
+    "delivery_history": 0,
+    "campaign_daily_usage": 0,
+    "jobs": 0,
+    "failed_jobs": 0
+  },
+  "leads": [],
+  "sent": [],
+  "jobs": [],
+  "queue": [],
+  "queue_tags": [],
+  "daily_usage": [],
+  "history_without_phone": [],
+  "transactions": [
+    {
+      "id": 950001,
+      "partner_id": 991001,
+      "type_id": 1,
+      "queue_id": null,
+      "campaign_id": null,
+      "amount": "100.00"
+    }
+  ],
+  "buyer_balance": "100.00"
+}

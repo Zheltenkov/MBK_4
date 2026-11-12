@@ -1,0 +1,81 @@
+# DRAFT: start only after source/configuration review and a passing isolation probe.
+# Merge with compose.yaml; the apps profile never starts with the capture default.
+services:
+  database:
+    image: mysql:8.0@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b
+    pull_policy: never
+    profiles: [apps]
+    env_file: ../../logs/local-stack-2026-11-06/runtime/mysql.env
+    volumes:
+      - local-database:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/local.sql:ro
+    networks: [isolated]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+
+  site:
+    &php-app
+    image: mbk-local/php:8.4
+    pull_policy: never
+    profiles: [apps]
+    command: [sh, /local/start-app.sh]
+    working_dir: /app
+    env_file: ../../logs/local-stack-2026-11-06/runtime/site.env
+    volumes:
+      - ../../logs/local-stack-2026-11-06/sources/project-1/www:/app:ro
+      - site-vendor:/app/vendor:ro
+      - ./start-app.sh:/local/start-app.sh:ro
+      - ./router.php:/local/router.php:ro
+      - ./runtime-probe.php:/local/runtime-probe.php:ro
+      - ./php-local.ini:/usr/local/etc/php/conf.d/zz-mbk-local.ini:ro
+    tmpfs:
+      - /tmp:uid=1000,gid=1000
+      - /app/storage:uid=1000,gid=1000
+      - /app/bootstrap/cache:uid=1000,gid=1000
+      - /app/database/csv:uid=1000,gid=1000
+    networks: [isolated]
+    user: "1000:1000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+    depends_on: [database, capture]
+
+  crm:
+    <<: *php-app
+    env_file: ../../logs/local-stack-2026-11-06/runtime/crm.env
+    volumes:
+      - ../../logs/local-stack-2026-11-06/sources/project-2/lara:/app:ro
+      - crm-vendor:/app/vendor:ro
+      - ./start-app.sh:/local/start-app.sh:ro
+      - ./router.php:/local/router.php:ro
+      - ./runtime-probe.php:/local/runtime-probe.php:ro
+      - ./php-local.ini:/usr/local/etc/php/conf.d/zz-mbk-local.ini:ro
+
+  partners:
+    <<: *php-app
+    env_file: ../../logs/local-stack-2026-11-06/runtime/partners.env
+    volumes:
+      - ../../logs/local-stack-2026-11-06/sources/project-3/www:/app:ro
+      - partners-vendor:/app/vendor:ro
+      - ./start-app.sh:/local/start-app.sh:ro
+      - ./router.php:/local/router.php:ro
+      - ./runtime-probe.php:/local/runtime-probe.php:ro
+      - ./php-local.ini:/usr/local/etc/php/conf.d/zz-mbk-local.ini:ro
+
+volumes:
+  # Populated explicitly from locked Composer installs, never customer vendor state.
+  site-vendor:
+    name: mbk-local-lab-vendor-1-20261106
+    external: true
+  crm-vendor:
+    name: mbk-local-lab-vendor-2-20261106
+    external: true
+  partners-vendor:
+    name: mbk-local-lab-vendor-3-20261106
+    external: true
+  local-database:
+    name: mbk-local-lab-empty-20261106-v1
+    labels:
+      mbk.local.data-origin: empty-schemas-only
+      mbk.local.created-for: 2026-11-06

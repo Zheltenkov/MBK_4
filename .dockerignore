@@ -1,0 +1,31 @@
+# Секреты и данные — НИКОГДА в образ
+.env
+logs/
+.streamlit/secrets.toml
+
+# Эвал-кухня (ноу-хау, не нужна в рантайме партнёра)
+run_eval.py
+run_routing_eval.py
+mikhail_eval_cases.json
+routing_cases.json
+
+# Dev-артефакты
+.venv/
+.venv313/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.serena/
+.tmp/
+.playwright-mcp/
+.git/
+node_modules/
+mbk_handoff_*.zip
+mbk_images_*.tar
+mbk_images_package_*.zip
+
+# Legacy Streamlit (прод на FastAPI)
+app.py
+.streamlit/
+config.toml

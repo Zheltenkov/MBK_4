@@ -1,0 +1,129 @@
+# Стек для сервера МБК. Одна команда — работающий бот.
+#
+#   docker compose -f deploy/prod/docker-compose.yml up -d --build
+#
+# Что здесь есть: база, накат миграций, backend, веб-интерфейс. Чего здесь нет
+# и не должно быть:
+#
+#   TLS и порты 80/443   — их держит nginx МБК, бот стоит за ним;
+#   вход по паролю       — клиент приходит уже авторизованным на сайте;
+#   сине-зелёные цвета   — это механика нашего стенда для выкатки без простоя,
+#                          на чужом сервере она только мешает.
+#
+# Наружу не смотрит ничего: и чат, и база опубликованы на петлю. Трафик к боту
+# приводит nginx МБК — см. docs/INSTALL.md, раздел «Подключаем к сайту».
+
+name: mbk
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${MBK_PG_DB:-mbk}
+      POSTGRES_USER: ${MBK_PG_USER:-mbk_app}
+      POSTGRES_PASSWORD: ${MBK_PG_PASSWORD:?MBK_PG_PASSWORD не задан в .env}
+    # Только петля. Наружу 5432 не нужен никому: аналитик заказчика приходит
+    # SSH-туннелем под отдельной ролью только на чтение.
+    ports:
+      - "127.0.0.1:${MBK_PG_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${MBK_PG_USER:-mbk_app} -d ${MBK_PG_DB:-mbk}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  migrate:
+    # Накат таблиц. Отрабатывает и завершается; backend ждёт именно завершения.
+    # Оба файла идемпотентны (CREATE TABLE IF NOT EXISTS), поэтому повторный
+    # запуск стека ничего не ломает и ничего не теряет.
+    image: postgres:17-alpine
+    restart: "no"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${MBK_PG_PASSWORD:?MBK_PG_PASSWORD не задан в .env}
+      PGUSER: ${MBK_PG_USER:-mbk_app}
+      PGDATABASE: ${MBK_PG_DB:-mbk}
+    volumes:
+      # Имена внутри контейнера задают порядок наката. Новая миграция —
+      # новая строка здесь, иначе она молча не применится на боевой машине;
+      # за этим следит tests/test_prod_package.py.
+      - ../../analytics/migrations/001_analytics_events.sql:/sql/001_analytics_events.sql:ro
+      - ../../storage/migrations/001_sessions.sql:/sql/002_sessions.sql:ro
+      - ../../analytics/migrations/003_dialog_messages.sql:/sql/003_dialog_messages.sql:ro
+    entrypoint:
+      - sh
+      - -c
+      - |
+        set -e
+        for file in /sql/*.sql; do
+          echo "накатываю $$file"
+          psql -h postgres -v ON_ERROR_STOP=1 -f "$$file"
+        done
+        echo "миграции применены"
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    env_file: ../../.env
+    environment:
+      # Строки подключения собирает стек, а не человек. Забытый MBK_SESSIONS_DSN
+      # не роняет бота: он поднимается, отвечает, выглядит здоровым — и держит
+      # сессии в памяти. Рестарт стирает их вместе с отметкой «лид уже отправлен»,
+      # то есть один клиент уезжает в CRM дважды.
+      MBK_SESSIONS_DSN: postgresql://${MBK_PG_USER:-mbk_app}:${MBK_PG_PASSWORD}@postgres:5432/${MBK_PG_DB:-mbk}
+      MBK_ANALYTICS_DSN: postgresql://${MBK_PG_USER:-mbk_app}:${MBK_PG_PASSWORD}@postgres:5432/${MBK_PG_DB:-mbk}
+    expose:
+      - "8000"
+    volumes:
+      - logs:/app/logs
+    healthcheck:
+      # Опенер с пустым ProxyHandler, а не urlopen: голый urlopen молча читает
+      # системные HTTP_PROXY/HTTPS_PROXY. Прокси нужен ровно одному адресату —
+      # зарубежному провайдеру модели, — и стоит администратору МБК прописать
+      # его системно, как вопрос про собственный localhost уедет за границу.
+      # Ответа не будет, контейнер сочтут больным, а frontend ждёт его
+      # service_healthy — чат не поднимется вовсе.
+      test: ["CMD", "python", "-c", "import urllib.request as u,sys; sys.exit(0 if u.build_opener(u.ProxyHandler({})).open('http://localhost:8000/api/health', timeout=3).status==200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ../../frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    # Петля намеренно. Открытый наружу порт — это вход к боту в обход сайта и
+    # авторизации МБК: адрес сервера подбирается сканированием за минуты.
+    ports:
+      - "127.0.0.1:${MBK_HTTP_PORT:-8080}:80"
+    healthcheck:
+      # Именно 127.0.0.1, а не localhost. Наш default.conf отличается от
+      # штатного, поэтому entrypoint nginx не дописывает `listen [::]:80`, и
+      # сервер слушает только IPv4. `localhost` внутри контейнера резолвится
+      # сначала в ::1 — проверка получала «Connection refused» на живом nginx.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  pgdata:
+  logs:

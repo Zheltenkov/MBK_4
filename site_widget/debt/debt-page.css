@@ -1,0 +1,80 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  color: #1f2937;
+  background: #f8f7f5;
+  --mbkc-viewport-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+  :root { --mbkc-viewport-height: 100dvh; }
+}
+
+.mbk-debt-body {
+  margin: 0;
+  min-width: 280px;
+  overflow: hidden;
+}
+
+.mbk-debt-page {
+  box-sizing: border-box;
+  height: var(--mbkc-viewport-height);
+  max-width: 860px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) 20px max(16px, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 20px;
+}
+
+.mbk-debt-intro { padding: 0 4px; }
+
+.mbk-debt-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+  color: #687078;
+  font-size: 14px;
+}
+
+.mbk-debt-brand span:first-child {
+  color: #d52b21;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.8px;
+}
+
+.mbk-debt-intro h1 {
+  margin: 0;
+  font-size: clamp(23px, 3.6vw, 32px);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.5px;
+}
+
+.mbk-debt-intro p {
+  margin: 10px 0 0;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #687078;
+}
+
+@media (max-width: 767px) {
+  .mbk-debt-page {
+    padding: max(12px, env(safe-area-inset-top)) 0 0;
+    gap: 14px;
+  }
+  .mbk-debt-intro { padding: 0 16px; }
+  .mbk-debt-brand { margin-bottom: 12px; font-size: 12px; }
+  .mbk-debt-brand span:first-child { font-size: 21px; }
+}
+
+@media (max-height: 520px) {
+  .mbk-debt-page { gap: 8px; padding-top: max(6px, env(safe-area-inset-top)); }
+  .mbk-debt-brand { margin-bottom: 5px; font-size: 11px; }
+  .mbk-debt-brand span:first-child { font-size: 16px; }
+  .mbk-debt-intro h1 { font-size: 18px; line-height: 1.2; }
+  .mbk-debt-intro p { display: none; }
+}

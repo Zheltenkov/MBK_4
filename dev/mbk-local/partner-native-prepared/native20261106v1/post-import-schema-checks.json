@@ -1,0 +1,13 @@
+{
+  "scope": "partners_genuine_v1",
+  "checks": {
+    "table_count": "37",
+    "cross_schema_foreign_keys": "0",
+    "active_campaigns": "1",
+    "active_channels": "1",
+    "opening_topups": "1",
+    "fixture_balance": "100.00",
+    "compatibility_double_count_default": "999"
+  },
+  "leads_submitted": 0
+}

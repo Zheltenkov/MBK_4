@@ -1,0 +1,190 @@
+{
+  "status": "native_partners_ready_awaiting_genuine_id",
+  "evidence_level": "native_apps_reader",
+  "data_source": "user_fixture",
+  "verified_at": "2026-11-06T17:41:29.092946+00:00",
+  "network_internal": true,
+  "host_positive_control": {
+    "control_id": "5515c87b570c4c3ebdbe08b2ef75c7f8",
+    "target": "77.88.55.242"
+  },
+  "services": [
+    {
+      "container": "mbk-partner-native-v1-partners-native-1",
+      "image_id": "sha256:ec950df744350c819a6aa8de4038f6705941d253d63f0b54f2cd7ee227f9f458",
+      "running": true,
+      "networks": [
+        "mbk-local-lab_isolated"
+      ],
+      "nonroot": true,
+      "read_only_root": true,
+      "published_ports": false,
+      "mounts": [
+        {
+          "destination": "/local/router.php",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        },
+        {
+          "destination": "/app/vendor",
+          "read_write": false,
+          "type": "volume",
+          "volume_name": "mbk-local-lab-vendor-3-20261106"
+        },
+        {
+          "destination": "/local/runtime-probe.php",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        },
+        {
+          "destination": "/local/network-probe.py",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        },
+        {
+          "destination": "/usr/local/etc/php/conf.d/zz-mbk-local.ini",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        },
+        {
+          "destination": "/app",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        },
+        {
+          "destination": "/local/start-app.sh",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        }
+      ]
+    },
+    {
+      "container": "mbk-partner-native-v1-partner-native-buyer-1",
+      "image_id": "sha256:b18b261e1b4974b4f321451ad5251ded85abb22c2b8b262da527dda1d031ab30",
+      "running": true,
+      "networks": [
+        "mbk-local-lab_isolated"
+      ],
+      "nonroot": true,
+      "read_only_root": true,
+      "published_ports": false,
+      "mounts": [
+        {
+          "destination": "/app/partner-native-buyer.py",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        },
+        {
+          "destination": "/app/network-probe.py",
+          "read_write": false,
+          "type": "bind",
+          "volume_name": null
+        },
+        {
+          "destination": "/data",
+          "read_write": true,
+          "type": "volume",
+          "volume_name": "mbk-partner-native-buyer-receipts-v1"
+        }
+      ]
+    }
+  ],
+  "probes": {
+    "mbk-partner-native-v1-partners-native-1": {
+      "control_id": "5515c87b570c4c3ebdbe08b2ef75c7f8",
+      "internal_capture_post": true,
+      "external_checks": [
+        {
+          "host": "77.88.55.242",
+          "port": 443,
+          "blocked": true
+        },
+        {
+          "host": "172.18.0.1",
+          "port": 80,
+          "blocked": true
+        },
+        {
+          "host": "172.18.0.1",
+          "port": 443,
+          "blocked": true
+        },
+        {
+          "host": "172.18.0.1",
+          "port": 2082,
+          "blocked": true
+        },
+        {
+          "host": "host.docker.internal",
+          "port": 2082,
+          "blocked": true
+        },
+        {
+          "host": "gateway.docker.internal",
+          "port": 2082,
+          "blocked": true
+        }
+      ]
+    },
+    "mbk-partner-native-v1-partner-native-buyer-1": {
+      "control_id": "5515c87b570c4c3ebdbe08b2ef75c7f8",
+      "internal_capture": true,
+      "external_tcp_blocked": true,
+      "host_checks": [
+        {
+          "host": "172.18.0.1",
+          "port": 80,
+          "blocked": true
+        },
+        {
+          "host": "172.18.0.1",
+          "port": 443,
+          "blocked": true
+        },
+        {
+          "host": "172.18.0.1",
+          "port": 2082,
+          "blocked": true
+        },
+        {
+          "host": "host.docker.internal",
+          "port": 2082,
+          "blocked": true
+        },
+        {
+          "host": "gateway.docker.internal",
+          "port": 2082,
+          "blocked": true
+        }
+      ]
+    }
+  },
+  "health": {
+    "buyer": {
+      "status": 200,
+      "body": {
+        "receiver_kind": "local_mock_buyer",
+        "run_id": "native20261106v1",
+        "armed": false,
+        "forwarding": false,
+        "receipt_count": 0
+      }
+    },
+    "capacity": {
+      "status": 200,
+      "body": {
+        "more": true
+      }
+    }
+  },
+  "lead_posts": 0,
+  "buyer_armed": false,
+  "workers_started": 0
+}

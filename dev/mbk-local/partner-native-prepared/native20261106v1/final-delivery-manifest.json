@@ -1,0 +1,110 @@
+{
+  "status": "passed",
+  "run_id": "native20261106v1",
+  "website_lead_id": 7,
+  "genuine_bitrix_id": 1,
+  "partners_local_lead_id": 1,
+  "evidence_level": "genuine_bitrix_runtime",
+  "data_source": "synthetic_fixture",
+  "automatic_original_handoff": false,
+  "manual_post_add_recovery": true,
+  "buyer_kind": "local_mock_buyer",
+  "sent_count": 1,
+  "history_count": 1,
+  "campaign_usage": 1,
+  "charge": "10.00",
+  "balance": "90.00",
+  "pending_jobs": 0,
+  "failed_jobs": 0,
+  "receipt_id": "local-e103fe7c3ef641c1b57d63e77e3f1360",
+  "artifacts": [
+    {
+      "path": "dev/mbk-local/crm-genuine-shipped-proof.php",
+      "sha256": "0fe7f7a9f0a73ced1b319a5ed0ac5a4e2b5f4a024fb699425b7d40f2b3e79f39"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/buyer-arm-proof.json",
+      "sha256": "56cd80b041c75ef0856e187882e0d4412ad918e61a3ff269a046990d7719ffef"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/buyer-receipts.json",
+      "sha256": "87bb0ec9eb4553d36988119ef30875bf43442716ab6c0f19dea04a9ad2084fb6"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/delivery-job-isolated.json",
+      "sha256": "9031053b729e451d1223f0786681cc04450aaea39394bb2c212120a5783d74ce"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/delivery-observe.json",
+      "sha256": "c35fb57102f6df117a943f58cf04a1c0e5c552ca7ebbbc755f923706b18968ed"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/import-result.json",
+      "sha256": "8650317cb192943d81e5c4745d692c4e2a1d919f15616ba48449f17c602fbbb7"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/manifest.json",
+      "sha256": "ca9ce607035bc115c2b158aa785a3750b7629701e636a25b8ebb07f41ba42661"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/native-framework-worker.json",
+      "sha256": "a2d299d6f3941e54cda2e8328aa8eddaae01d72b38ac9bdcc975aeb73b9d57a5"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/partner-baseline.json",
+      "sha256": "745e30407ebad84fc57f28df6e3d928612c57eaa39acd2a832cfd2bfc91212dd"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/post-delivery-native-app-snapshot.json",
+      "sha256": "b0f6f16532a328ff73380a9211a6cea193b986a91f4cb44dcb18f5444c5e1f15"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/post-import-schema-checks.json",
+      "sha256": "1451d20546f0c0a3808d4c1b1ae34b07ad9fd0ccc0c7d4ce8a4470152e323c9b"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/pre-lead-native-app-snapshot.json",
+      "sha256": "ceb43b550741ce40e37945ac914a73208c46d33721c11dee731dcf017077f9ec"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/pre-lead-runtime-verification.json",
+      "sha256": "763c8f6626bbc687972b4bd45aad778d60912f120e20d7ed137abc95f4a1fe9a"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-prepared/native20261106v1/schema-hash-provenance.json",
+      "sha256": "656698f3bb78ed591738aaed45290776779f97169d8b8faedb9bf024cfd7bbe4"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-result.md",
+      "sha256": "37ce3050d2f311ea1b8d67110b0dd6d7d43ff5258e4cbfa51d075c005a843040"
+    },
+    {
+      "path": "dev/mbk-local/partner-native-work-once.php",
+      "sha256": "55c28b165a704b5d994ede8204a810557024238e880bf0805f90fb3c2d46e11a"
+    },
+    {
+      "path": "logs/local-stack-2026-11-06/genuine-crm/manual-post-add-recovery-id1.json",
+      "sha256": "8aa61f5631b45b43aade97bb6224bc4eea3599985cb4442ffeca834b13479d56"
+    },
+    {
+      "path": "logs/local-stack-2026-11-06/genuine-crm/native-framework-worker.json",
+      "sha256": "25bf133a8450f1265669b4816f45c59154694eaba7e8640bda1933562ded8f5a"
+    },
+    {
+      "path": "logs/local-stack-2026-11-06/genuine-crm/post-delivery-native-uf-read.json",
+      "sha256": "cbcffdda8dbef1eefbb4a28775349ae013cc06d56409188da8e8a4a691777902"
+    },
+    {
+      "path": "logs/local-stack-2026-11-06/genuine-crm/sender-observe.json",
+      "sha256": "bb020a71bac3f1c0cbe59a27bb9dce735c71f36207420025c450bbcbca012267"
+    },
+    {
+      "path": "logs/local-stack-2026-11-06/genuine-crm/website-id1-auth-proof.json",
+      "sha256": "ffbe6fe5d27ce98f25f2c09d9800278aba7baf98728c1a53f35a9a2b134a4ca3"
+    },
+    {
+      "path": "logs/local-stack-2026-11-06/website-native-v1/site-ack-observe.json",
+      "sha256": "188aa1544590a7067d30bde940a635c721f6ce11a3657feb94890daa814f0c3e"
+    }
+  ]
+}

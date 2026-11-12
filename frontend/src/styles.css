@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body { font-family: 'Inter', system-ui, sans-serif; }
+}
+
+@layer components {
+  .input-base {
+    @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm
+           focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
+           placeholder:text-slate-400 transition-shadow;
+  }
+  .label-base {
+    @apply block text-sm font-medium text-slate-700 mb-1;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-brand-600 px-4 py-2 text-sm
+           font-medium text-white shadow-sm hover:bg-brand-700 focus:outline-none
+           focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:bg-slate-300
+           disabled:cursor-not-allowed transition;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2
+           text-sm font-medium text-slate-700 hover:bg-slate-50 focus:outline-none
+           focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 transition;
+  }
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+  .pill-radio {
+    @apply cursor-pointer rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm
+           text-slate-700 hover:border-brand-500 transition;
+  }
+  .pill-radio-checked {
+    @apply border-brand-600 bg-brand-50 text-brand-700 font-medium;
+  }
+  .typing-dot {
+    animation: typing 1.4s infinite;
+    animation-fill-mode: both;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+}
+
+@keyframes typing {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bubble-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}

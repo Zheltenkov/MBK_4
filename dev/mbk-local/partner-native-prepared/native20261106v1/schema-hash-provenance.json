@@ -1,0 +1,15 @@
+{
+  "run_id": "native20261106v1",
+  "prepared_files_unchanged": true,
+  "legacy_manifest_hash_basis": "normalized_utf8_text_lf",
+  "artifacts": {
+    "schema.sql": {
+      "disk_bytes_sha256": "d4626fbc9d6c8170b07dd62eb36bcc9f18eaff39c3c9404c4c76b8a806a09c0e",
+      "normalized_utf8_text_lf_sha256": "c61cbf7132341a835a24766ca7b6ff22b7bcd5ca7d78d9f5406d5b83e6333d0c"
+    },
+    "fixture.sql": {
+      "disk_bytes_sha256": "66fc0ab75591b8513622deaaf1d9d136c56f5c754eb46f15ebeac8f16438a77c",
+      "normalized_utf8_text_lf_sha256": "adfb0b60bb065ddceada69fe5b661d79598895a0c82466fe143ab179ddc36ef9"
+    }
+  }
+}

@@ -1,0 +1,360 @@
+[
+  {
+    "id": "holdout_request_point_estimate",
+    "phenomenon": "numeric_point_estimate",
+    "utterance": "Для предварительного расчёта ориентир — 540 тысяч.",
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": 540000,
+        "evidence": "540 тысяч",
+        "precision": "point_estimate"
+      },
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "Для предварительного расчёта ориентир"
+      }
+    ],
+    "expected_values": {
+      "request.amount": 540000,
+      "client.goal": "cash"
+    },
+    "expected_statuses": {
+      "request.amount": "known",
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["accepted", "accepted"]
+  },
+  {
+    "id": "holdout_debt_point_estimate",
+    "phenomenon": "numeric_point_estimate",
+    "utterance": "По всем займам выходит приблизительно 720 тысяч.",
+    "candidates": [
+      {
+        "path": "debts.total",
+        "value": 720000,
+        "evidence": "приблизительно 720 тысяч",
+        "precision": "point_estimate"
+      }
+    ],
+    "expected_values": {
+      "debts.total": 720000
+    },
+    "expected_statuses": {
+      "debts.total": "known"
+    },
+    "expected_dispositions": ["accepted"]
+  },
+  {
+    "id": "holdout_debt_range",
+    "phenomenon": "numeric_range",
+    "utterance": "Долг гуляет между 600 и 750 тысячами.",
+    "candidates": [
+      {
+        "path": "debts.total",
+        "value": "между 600 и 750 тысячами",
+        "evidence": "между 600 и 750 тысячами",
+        "explicitness": "ambiguous",
+        "precision": "range"
+      }
+    ],
+    "expected_absent_paths": ["debts.total"],
+    "expected_statuses": {
+      "debts.total": "needs_confirmation"
+    },
+    "expected_dispositions": ["needs_confirmation"]
+  },
+  {
+    "id": "holdout_vague_request",
+    "phenomenon": "numeric_vague",
+    "utterance": "Деньги нужны, но с размером пока не определился.",
+    "candidates": [
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "Деньги нужны"
+      },
+      {
+        "path": "request.amount",
+        "value": "с размером пока не определился",
+        "evidence": "с размером пока не определился",
+        "explicitness": "ambiguous",
+        "precision": "vague"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "cash"
+    },
+    "expected_absent_paths": ["request.amount"],
+    "expected_statuses": {
+      "client.goal": "known",
+      "request.amount": "needs_confirmation"
+    },
+    "expected_dispositions": ["accepted", "needs_confirmation"]
+  },
+  {
+    "id": "holdout_vehicle_details_imply_presence",
+    "phenomenon": "typed_entity_dependency",
+    "utterance": "Моя машина 2017 года, кредит за неё закрыт и залога нет.",
+    "candidates": [
+      {
+        "path": "assets.vehicle.year",
+        "value": 2017,
+        "evidence": "2017 года"
+      },
+      {
+        "path": "assets.vehicle.pledged",
+        "value": false,
+        "evidence": "кредит за неё закрыт и залога нет"
+      },
+      {
+        "path": "assets.has_vehicle",
+        "value": true,
+        "evidence": "Моя машина"
+      }
+    ],
+    "expected_values": {
+      "assets.vehicle.year": 2017,
+      "assets.vehicle.pledged": false,
+      "assets.has_vehicle": true
+    },
+    "expected_statuses": {
+      "assets.vehicle.year": "known",
+      "assets.vehicle.pledged": "known",
+      "assets.has_vehicle": "known"
+    },
+    "expected_dispositions": ["accepted", "accepted", "accepted"]
+  },
+  {
+    "id": "holdout_cash_intent_without_credit_word",
+    "phenomenon": "intent",
+    "utterance": "Ищу финансирование на 630 тысяч для ремонта.",
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": 630000,
+        "evidence": "630 тысяч"
+      },
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "Ищу финансирование"
+      }
+    ],
+    "expected_values": {
+      "request.amount": 630000,
+      "client.goal": "cash"
+    },
+    "expected_statuses": {
+      "request.amount": "known",
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["accepted", "accepted"]
+  },
+  {
+    "id": "holdout_debt_relief_distress",
+    "phenomenon": "intent",
+    "utterance": "Платежи уже не тяну и занимать ещё не хочу, нужно решить вопрос с долгами.",
+    "candidates": [
+      {
+        "path": "client.goal",
+        "value": "debt_relief",
+        "evidence": "нужно решить вопрос с долгами"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "debt_relief"
+    },
+    "expected_statuses": {
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["accepted"]
+  },
+  {
+    "id": "holdout_new_loan_refusal_not_alternatives",
+    "phenomenon": "negation_scope",
+    "utterance": "Кредит сверху мне не нужен, хочу понять, как закрыть накопившиеся долги.",
+    "candidates": [
+      {
+        "path": "client.goal",
+        "value": "debt_relief",
+        "evidence": "как закрыть накопившиеся долги"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "debt_relief"
+    },
+    "expected_absent_paths": ["preferences.explore_alternatives"],
+    "expected_statuses": {
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["accepted"]
+  },
+  {
+    "id": "holdout_overdue_without_goal",
+    "phenomenon": "intent_negative_control",
+    "utterance": "По одному займу сейчас задержка платежа.",
+    "candidates": [
+      {
+        "path": "debts.credit_history",
+        "value": "has_overdue",
+        "evidence": "сейчас задержка платежа"
+      }
+    ],
+    "expected_values": {
+      "debts.credit_history": "has_overdue"
+    },
+    "expected_absent_paths": ["client.goal"],
+    "expected_statuses": {
+      "debts.credit_history": "known"
+    },
+    "expected_dispositions": ["accepted"]
+  },
+  {
+    "id": "holdout_spouse_vehicle_not_client",
+    "phenomenon": "subject_resolution",
+    "utterance": "У мужа автомобиль 2020 года, у меня машины нет.",
+    "candidates": [
+      {
+        "path": "assets.vehicle.year",
+        "value": 2020,
+        "evidence": "2020 года",
+        "subject": "spouse"
+      },
+      {
+        "path": "assets.has_vehicle",
+        "value": true,
+        "evidence": "У мужа автомобиль",
+        "subject": "spouse"
+      },
+      {
+        "path": "assets.has_vehicle",
+        "value": false,
+        "evidence": "у меня машины нет"
+      }
+    ],
+    "expected_values": {
+      "assets.has_vehicle": false
+    },
+    "expected_absent_paths": ["assets.vehicle.year"],
+    "expected_statuses": {
+      "assets.has_vehicle": "known",
+      "assets.vehicle.year": "needs_confirmation"
+    },
+    "expected_dispositions": [
+      "needs_confirmation",
+      "needs_confirmation",
+      "accepted"
+    ]
+  },
+  {
+    "id": "holdout_request_range_with_cash_goal",
+    "phenomenon": "numeric_range",
+    "utterance": "На покупку нужно от 400 до 600 тысяч, точную сумму ещё считаю.",
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": "от 400 до 600 тысяч",
+        "evidence": "от 400 до 600 тысяч",
+        "explicitness": "ambiguous",
+        "precision": "range"
+      },
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "На покупку нужно"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "cash"
+    },
+    "expected_absent_paths": ["request.amount"],
+    "expected_statuses": {
+      "request.amount": "needs_confirmation",
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["needs_confirmation", "accepted"]
+  },
+  {
+    "id": "holdout_exact_compound_amount",
+    "phenomenon": "numeric_normalization",
+    "utterance": "Хотел бы получить один миллион двести тысяч.",
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": 1200000,
+        "evidence": "один миллион двести тысяч"
+      },
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "Хотел бы получить"
+      }
+    ],
+    "expected_values": {
+      "request.amount": 1200000,
+      "client.goal": "cash"
+    },
+    "expected_statuses": {
+      "request.amount": "known",
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["accepted", "accepted"]
+  },
+  {
+    "id": "holdout_debt_relief_without_formula",
+    "phenomenon": "intent",
+    "utterance": "По займам пошли задержки, наращивать долг не собираюсь — хочу выбраться из этой долговой ситуации.",
+    "candidates": [
+      {
+        "path": "debts.credit_history",
+        "value": "has_overdue",
+        "evidence": "пошли задержки"
+      },
+      {
+        "path": "client.goal",
+        "value": "debt_relief",
+        "evidence": "хочу выбраться из этой долговой ситуации"
+      }
+    ],
+    "expected_values": {
+      "debts.credit_history": "has_overdue",
+      "client.goal": "debt_relief"
+    },
+    "expected_absent_paths": ["preferences.explore_alternatives"],
+    "expected_statuses": {
+      "debts.credit_history": "known",
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["accepted", "accepted"]
+  },
+  {
+    "id": "holdout_second_request_range",
+    "phenomenon": "numeric_range",
+    "utterance": "На обучение понадобится где-то от 250 до 450 тысяч, окончательно ещё не решил.",
+    "candidates": [
+      {
+        "path": "request.amount",
+        "value": "от 250 до 450 тысяч",
+        "evidence": "от 250 до 450 тысяч",
+        "explicitness": "ambiguous",
+        "precision": "range"
+      },
+      {
+        "path": "client.goal",
+        "value": "cash",
+        "evidence": "На обучение понадобится"
+      }
+    ],
+    "expected_values": {
+      "client.goal": "cash"
+    },
+    "expected_absent_paths": ["request.amount"],
+    "expected_statuses": {
+      "request.amount": "needs_confirmation",
+      "client.goal": "known"
+    },
+    "expected_dispositions": ["needs_confirmation", "accepted"]
+  }
+]

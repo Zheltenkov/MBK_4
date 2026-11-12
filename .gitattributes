@@ -1,0 +1,5 @@
+# Файлы, которые исполняет Linux-сервер, обязаны быть с LF. Windows-рабочая
+# копия иначе получает CRLF, и bash падает на shebang с «bad interpreter».
+*.sh text eol=lf
+Caddyfile text eol=lf
+*.caddy text eol=lf

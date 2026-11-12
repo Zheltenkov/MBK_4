@@ -1,0 +1,12 @@
+{
+  "name": "mbk-site-ai-chat-widget",
+  "private": true,
+  "description": "Рабочая копия виджета AI-чата из mbk/mbk-site с тестами",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "receiver_kind": "local_mock_buyer",
+  "run_id": "native20261106v1",
+  "receipts": [
+    {
+      "run_id": "native20261106v1",
+      "genuine_bitrix_id": "1",
+      "campaign_label": "local-native-native20261106v1",
+      "receipt_id": "local-e103fe7c3ef641c1b57d63e77e3f1360",
+      "sha256": "3e33bc7c6bcf8ae01cf8ace8d7f486b412db5a1b1eda7ea82317848092ee553c",
+      "bytes": 832,
+      "received_at": "2026-11-06T18:55:47.966876+00:00",
+      "transport_status": 200,
+      "receiver_kind": "local_mock_buyer"
+    }
+  ]
+}

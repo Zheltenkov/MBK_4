@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f7f5">
+  <title>Списание и реструктуризация долгов — МБК</title>
+  <link rel="stylesheet" href="/debt-assets/widget.css">
+  <link rel="stylesheet" href="/debt-assets/debt-page.css">
+  <script src="/debt-assets/widget.js" defer></script>
+</head>
+<body class="mbk-debt-body">
+  <main class="mbk-debt-page">
+    <header class="mbk-debt-intro">
+      <div class="mbk-debt-brand"><span>МБК</span><span>Онлайн-консультация</span></div>
+      <h1>Списание и реструктуризация долгов</h1>
+      <p>Обсудите свою ситуацию с AI-помощником МБК.</p>
+    </header>
+
+    <section id="mbk-ai-chat" data-scenario="debt" data-layout="embedded" data-mode="widget"
+      data-avatar="/debt-assets/avatar.svg" data-operator-name="Ника, AI-помощник МБК"
+      aria-label="Чат о долгах">
+      <div class="mbkc-panel">
+        <div class="mbkc-main">
+          <div class="mbkc-header">
+            <div class="mbkc-header-person">
+              <span class="mbkc-avatar mbkc-avatar--md"><img src="/debt-assets/avatar.svg" alt=""></span>
+              <div><div class="mbkc-header-name">Ника</div><div class="mbkc-header-role">AI-помощник МБК</div></div>
+            </div>
+          </div>
+          <div class="mbkc-feed-wrap">
+            <div class="mbkc-feed" tabindex="0" aria-label="История сообщений">
+              <div class="mbkc-welcome">
+                <h2>Разберёмся с вашим вопросом</h2>
+                <p>Начните консультацию или напишите сообщение. Уточним сумму долга и вашу ситуацию.</p>
+                <button type="button" class="mbkc-start" data-action="start-debt">Начать консультацию</button>
+              </div>
+              <div class="mbkc-feed-inner" role="log" aria-live="polite" aria-relevant="additions text"></div>
+            </div>
+          </div>
+          <form class="mbkc-inputbar">
+            <div class="mbkc-inputbar-inner">
+              <label class="mbkc-sr-only" for="mbkc-debt-message">Ваше сообщение</label>
+              <input id="mbkc-debt-message" type="text" class="mbkc-input" placeholder="Напишите сообщение…"
+                autocomplete="off" enterkeyhint="send">
+              <button type="submit" class="mbkc-send" disabled aria-label="Отправить сообщение">
+                <svg class="mbkc-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

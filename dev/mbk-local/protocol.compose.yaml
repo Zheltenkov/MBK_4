@@ -1,0 +1,30 @@
+# Separate protocol simulator: no Bitrix code, production DB, or outbound client.
+services:
+  crm:
+    # Merge after apps.compose.yaml; adapt only the receiver boundary/configuration.
+    env_file: ../../logs/local-stack-2026-11-06/runtime/protocol-crm.env
+
+  protocol-receiver:
+    image: python:3.12-slim
+    pull_policy: never
+    profiles: [protocol]
+    command: [python, -u, /app/protocol_receiver.py]
+    env_file: ../../logs/local-stack-2026-11-06/runtime/protocol.env
+    volumes:
+      - ./protocol_receiver.py:/app/protocol_receiver.py:ro
+      - ./probe.py:/app/network-probe.py:ro
+      - protocol-ledger:/data
+    networks: [isolated]
+    read_only: true
+    tmpfs: [/tmp]
+    user: "1000:1000"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 64
+
+volumes:
+  protocol-ledger:
+    name: mbk-local-protocol-ledger-20261106-v1
+    labels:
+      mbk.local.data-origin: protocol-simulation
+      mbk.local.evidence-level: protocol_simulation

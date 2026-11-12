@@ -1,0 +1,392 @@
+[
+  {
+    "id": "debt_relief_still_answers_the_form",
+    "description": "Клиент пришёл с долгами, но анкета одна для всех: следующий вопрос по сценарию, а не по его намерению",
+    "facts": {
+      "client": {
+        "name": "Ирина",
+        "phone": "+79990000001",
+        "goal": "debt_relief",
+        "age": 44,
+        "region_class": "moscow_mo"
+      },
+      "request": {
+        "amount": 300000
+      },
+      "debts": {
+        "has_active_credits": true,
+        "total": 800000
+      }
+    },
+    "history": [
+      {
+        "role": "user",
+        "content": "Хочу разобраться с долгами, новый кредит не нужен"
+      }
+    ],
+    "latest_user_message": "Что ещё нужно уточнить?",
+    "expected_action": "ask",
+    "expected_fields": [
+      "debts.overdue_duration"
+    ],
+    "required_any": [
+      "просроч",
+      "задержк",
+      "платеж"
+    ],
+    "forbidden_any": [
+      "вам подойдёт",
+      "оформим банкротство"
+    ]
+  },
+  {
+    "id": "objection_is_absorbed_not_obeyed",
+    "description": "Отказ от залога отрабатывается словами и не убирает вопрос про имущество из анкеты",
+    "facts": {
+      "client": {
+        "name": "Антон",
+        "phone": "+79990000002",
+        "goal": "cash",
+        "age": 35,
+        "region_class": "moscow_mo"
+      },
+      "request": {
+        "amount": 500000
+      },
+      "debts": {
+        "has_active_credits": false
+      },
+      "employment": {
+        "type": "official",
+        "income": 120000
+      },
+      "preferences": {
+        "collateral_allowed": false
+      }
+    },
+    "history": [
+      {
+        "role": "user",
+        "content": "Нужен обычный кредит, залог не рассматриваю"
+      }
+    ],
+    "latest_user_message": "Хорошо, что дальше?",
+    "expected_action": "ask",
+    "expected_fields": [
+      "assets.has_realty"
+    ],
+    "required_any": [
+      "недвижим",
+      "квартир",
+      "собственност"
+    ],
+    "forbidden_any": [
+      "не будем рассматривать залог",
+      "исключим залог",
+      "вам подойдёт"
+    ]
+  },
+  {
+    "id": "initial_phone_only",
+    "description": "Анкета пройдена и решение есть — добираем телефон перед ссылкой",
+    "facts": {
+      "request": {
+        "amount": 500000
+      },
+      "client": {
+        "name": "Василий",
+        "goal": "cash",
+        "age": 40,
+        "region_class": "moscow_mo"
+      },
+      "debts": {
+        "has_active_credits": false
+      },
+      "employment": {
+        "type": "official",
+        "income": 150000
+      },
+      "assets": {
+        "has_realty": true,
+        "has_vehicle": false,
+        "realty": {
+          "region_class": "moscow_mo",
+          "kind": "flat",
+          "ownership_form": "private",
+          "owners": "client_only"
+        }
+      }
+    },
+    "history": [],
+    "latest_user_message": "Отлично",
+    "expected_action": "contacts",
+    "expected_fields": [
+      "client.phone"
+    ],
+    "required_any": [
+      "телефон",
+      "номер"
+    ],
+    "forbidden_any": [
+      "как к вам обращаться",
+      "как вас зовут",
+      "отправлю на него",
+      "смс"
+    ]
+  },
+  {
+    "id": "no_match_phone_request_is_soft",
+    "description": "Анкета пройдена, решения нет: телефон просим мягко и ссылку не обещаем",
+    "facts": {
+      "request": {
+        "amount": 100000
+      },
+      "client": {
+        "name": "Пётр",
+        "goal": "cash",
+        "age": 70,
+        "region_class": "rf_other"
+      },
+      "debts": {
+        "has_active_credits": false
+      },
+      "employment": {
+        "type": "unemployed"
+      },
+      "assets": {
+        "has_realty": false,
+        "has_vehicle": false
+      }
+    },
+    "history": [],
+    "latest_user_message": "Ну что там?",
+    "expected_action": "contacts",
+    "expected_fields": [
+      "client.phone"
+    ],
+    "required_any": [
+      "телефон",
+      "номер"
+    ],
+    "forbidden_any": [
+      "решение есть",
+      "пришлю ссылку с решением",
+      "данных достаточно",
+      "вам подойдёт"
+    ]
+  },
+  {
+    "id": "post_link_thanks",
+    "description": "После ссылки не обещаем прислать её повторно",
+    "facts": {
+      "request": {
+        "amount": 500000
+      },
+      "client": {
+        "name": "Василий",
+        "phone": "+79990000000",
+        "goal": "cash",
+        "age": 40,
+        "region_class": "moscow_mo"
+      },
+      "assets": {
+        "has_realty": true,
+        "realty": {
+          "region_class": "moscow_mo",
+          "kind": "flat",
+          "ownership_form": "private",
+          "owners": "client_only"
+        },
+        "has_vehicle": false
+      },
+      "debts": {
+        "has_active_credits": false
+      },
+      "employment": {
+        "type": "official",
+        "income": 150000
+      }
+    },
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Вот ссылка — там ваше решение"
+      },
+      {
+        "role": "assistant",
+        "content": "https://www.mbk.ru/result"
+      }
+    ],
+    "latest_user_message": "Спасибо!",
+    "delivery": {
+      "status": "link",
+      "url": "https://www.mbk.ru/result",
+      "sent": true
+    },
+    "phase": "link_sent",
+    "expected_action": "route_found",
+    "expected_fields": [],
+    "required_any": [
+      "пожалуйста",
+      "рад",
+      "обращайтесь",
+      "удачи"
+    ],
+    "forbidden_any": [
+      "сейчас пришлю",
+      "ещё несколько вопросов"
+    ],
+    "max_questions": 0
+  },
+  {
+    "id": "delivery_error_is_honest",
+    "description": "Техническая ошибка не выдаётся за отказ",
+    "facts": {
+      "request": {
+        "amount": 500000
+      },
+      "client": {
+        "name": "Василий",
+        "phone": "+79990000000",
+        "goal": "cash",
+        "age": 40,
+        "region_class": "moscow_mo"
+      },
+      "assets": {
+        "has_realty": true,
+        "realty": {
+          "region_class": "moscow_mo",
+          "kind": "flat",
+          "ownership_form": "private",
+          "owners": "client_only"
+        },
+        "has_vehicle": false
+      },
+      "debts": {
+        "has_active_credits": false
+      },
+      "employment": {
+        "type": "official",
+        "income": 150000
+      }
+    },
+    "history": [],
+    "latest_user_message": "Где ссылка?",
+    "delivery": {
+      "status": "error",
+      "message": "timeout"
+    },
+    "phase": "delivery_error",
+    "expected_action": "route_found",
+    "expected_fields": [],
+    "required_any": [
+      "техничес",
+      "сервис",
+      "попроб"
+    ],
+    "forbidden_any": [
+      "решение не нашлось",
+      "вам отказано",
+      "ничего не потерялось"
+    ]
+  },
+  {
+    "id": "ambiguous_city_without_internal_database_terms",
+    "description": "Курсор анкеты стоит на регионе, город одноимённый: уточнение не раскрывает DaData, базу или систему",
+    "facts": {
+      "client": {
+        "name": "Ирина",
+        "phone": "+79990000004",
+        "goal": "debt_relief",
+        "city": "Казань",
+        "location": {
+          "status": "ambiguous",
+          "query": "Казань",
+          "confirmation_required": true,
+          "candidates": [
+            {
+              "display_name": "респ Татарстан, г Казань"
+            },
+            {
+              "display_name": "Кировская обл, деревня Казань"
+            }
+          ]
+        },
+        "age": 44
+      },
+      "debts": {
+        "total": 650000,
+        "credit_history": "has_overdue"
+      },
+      "request": {
+        "amount": 300000
+      }
+    },
+    "history": [
+      {
+        "role": "user",
+        "content": "Живу в Казани, долг 650 тысяч, есть просрочки"
+      }
+    ],
+    "latest_user_message": "Что именно нужно уточнить?",
+    "expected_action": "ask",
+    "expected_fields": [
+      "client.region_class"
+    ],
+    "required_any": [
+      "татарстан",
+      "кировск",
+      "регион",
+      "одноим"
+    ],
+    "forbidden_any": [
+      "база",
+      "система",
+      "dadata",
+      "поле",
+      "справочник"
+    ]
+  },
+  {
+    "id": "bot_question_is_deflected_not_debated",
+    "description": "На «ты бот?» — короткая отговорка и возврат к вопросу анкеты, без клятв и без разбора темы",
+    "facts": {
+      "client": {
+        "name": "Ирина",
+        "age": 44,
+        "region_class": "moscow_mo"
+      },
+      "request": {
+        "amount": 300000
+      },
+      "debts": {
+        "has_active_credits": true,
+        "total": 800000
+      }
+    },
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Ирина, есть ли сейчас просрочки по платежам?"
+      }
+    ],
+    "latest_user_message": "Слушай, а ты бот или живой человек?",
+    "expected_action": "ask",
+    "expected_fields": [
+      "debts.overdue_duration"
+    ],
+    "required_any": [
+      "просроч",
+      "задержк",
+      "платеж"
+    ],
+    "forbidden_any": [
+      "я не бот",
+      "не робот",
+      "не программа",
+      "искусственный интеллект",
+      "нейросет",
+      "я живой человек"
+    ]
+  }
+]

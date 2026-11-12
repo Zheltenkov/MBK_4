@@ -1,0 +1,5 @@
+# Initial official wizard only. Omit this overlay for the final readonly API runtime.
+services:
+  bitrix-official:
+    volumes:
+      - official-webroot:/srv/native

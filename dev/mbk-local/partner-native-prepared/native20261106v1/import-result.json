@@ -1,0 +1,16 @@
+{
+  "status": "schema_fixture_ready_no_leads_submitted",
+  "schema": "partners_genuine_v1",
+  "run_id": "native20261106v1",
+  "business_counts": {
+    "leads": 0,
+    "sent": 0,
+    "distribution_queue": 0,
+    "delivery_history": 0,
+    "campaign_daily_usage": 0,
+    "jobs": 0
+  },
+  "workers_started": 0,
+  "schema_sha256": "c61cbf7132341a835a24766ca7b6ff22b7bcd5ca7d78d9f5406d5b83e6333d0c",
+  "fixture_sha256": "adfb0b60bb065ddceada69fe5b661d79598895a0c82466fe143ab179ddc36ef9"
+}
